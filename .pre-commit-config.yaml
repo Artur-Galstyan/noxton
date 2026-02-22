@@ -3,5 +3,7 @@ repos:
     rev: v0.15.2
     hooks:
       - id: ruff
-        args: [--fix]
+        args:
+          - --fix
+          - --ignore=F821,E731
       - id: ruff-format

@@ -14,6 +14,7 @@ from .masking import (
 )
 from .normalization import normalize
 from .regularization import dropout, stochastic_depth
+from .state_space import selective_scan
 
 __all__ = [
     "swiglu",
@@ -29,4 +30,5 @@ __all__ = [
     "canonical_key_padding_mask",
     "canonical_mask",
     "make_causal_mask",
+    "selective_scan",
 ]
