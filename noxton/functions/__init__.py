@@ -5,6 +5,7 @@ from .attention import (
     shifted_window_attention,
 )
 from .embedding import sinusoidal_embedding
+from .initialization import kaiming_init_conv2d
 from .masking import (
     build_attention_mask,
     canonical_attn_mask,
@@ -22,6 +23,7 @@ __all__ = [
     "shifted_window_attention",
     "create_attn_mask",
     "sinusoidal_embedding",
+    "kaiming_init_conv2d",
     "dropout",
     "stochastic_depth",
     "normalize",
