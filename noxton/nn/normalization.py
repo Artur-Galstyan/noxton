@@ -51,7 +51,7 @@ class BatchNorm(AbstractNormStateful):
         (1, 16)
     """
 
-    state_index: eqx.nn.StateIndex
+    running_mean_var: eqx.nn.StateIndex
 
     gamma: Float[Array, "size"] | None
     beta: Float[Array, "size"] | None
@@ -87,7 +87,7 @@ class BatchNorm(AbstractNormStateful):
         self.gamma = jnp.ones(self.size, dtype=dtype) if self.affine else None
         self.beta = jnp.zeros(self.size, dtype=dtype) if self.affine else None
 
-        self.state_index = eqx.nn.StateIndex(
+        self.running_mean_var = eqx.nn.StateIndex(
             (jnp.zeros(size, dtype=dtype), jnp.ones(size, dtype=dtype))
         )
 
@@ -111,7 +111,7 @@ class BatchNorm(AbstractNormStateful):
             A ``(output, state)`` tuple where ``output`` has the same shape as
             ``x`` and ``state`` has updated running statistics (training only).
         """
-        running_mean, running_var = state.get(self.state_index)
+        running_mean, running_var = state.get(self.running_mean_var)
 
         input_shape = x.shape
         ndim = len(input_shape)
@@ -137,7 +137,7 @@ class BatchNorm(AbstractNormStateful):
                     batch_var * correction_factor
                 )
 
-                state = state.set(self.state_index, (running_mean, running_var))
+                state = state.set(self.running_mean_var, (running_mean, running_var))
         else:
             spatial_axes = tuple(range(1, ndim))  # All dims except channel dim (0)
 
@@ -178,7 +178,7 @@ class BatchNorm(AbstractNormStateful):
                     batch_var * correction_factor
                 )
 
-                state = state.set(self.state_index, (running_mean, running_var))
+                state = state.set(self.running_mean_var, (running_mean, running_var))
 
         out = x_normalized
         if self.affine and self.gamma is not None and self.beta is not None:
