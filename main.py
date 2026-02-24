@@ -14,3 +14,8 @@ bn_eqx, bn_s = autoconvert(bn_eqx, bn_torch.state_dict())
 
 
 print(np.allclose(np.array(bn_eqx.weight), bn_torch.weight.detach().numpy()))
+
+
+o_t = bn_torch(torch.ones(32))
+
+print(o_t)
