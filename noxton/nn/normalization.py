@@ -30,8 +30,8 @@ class BatchNorm(AbstractNormStateful):
             Defaults to ``1e-5``.
         momentum: Exponential moving-average factor for updating running
             statistics.  Defaults to ``0.1``.
-        affine: If ``True``, learn per-channel scale (``gamma``) and shift
-            (``beta``) parameters.  Defaults to ``True``.
+        affine: If ``True``, learn per-channel scale (``weight``) and shift
+            (``bias``) parameters.  Defaults to ``True``.
         inference: If ``True``, use running statistics instead of batch
             statistics.  Defaults to ``False``.
         dtype: Floating-point dtype for parameters.  Defaults to the project
@@ -52,9 +52,10 @@ class BatchNorm(AbstractNormStateful):
     """
 
     running_mean_var: eqx.nn.StateIndex
+    batch_counter: eqx.nn.StateIndex
 
-    gamma: Float[Array, "size"] | None
-    beta: Float[Array, "size"] | None
+    weight: Float[Array, "size"] | None
+    bias: Float[Array, "size"] | None
 
     inference: bool
     axis_name: Hashable | Sequence[Hashable]
@@ -84,12 +85,13 @@ class BatchNorm(AbstractNormStateful):
         self.inference = inference
         self.axis_name = axis_name
 
-        self.gamma = jnp.ones(self.size, dtype=dtype) if self.affine else None
-        self.beta = jnp.zeros(self.size, dtype=dtype) if self.affine else None
+        self.weight = jnp.ones(self.size, dtype=dtype) if self.affine else None
+        self.bias = jnp.zeros(self.size, dtype=dtype) if self.affine else None
 
         self.running_mean_var = eqx.nn.StateIndex(
             (jnp.zeros(size, dtype=dtype), jnp.ones(size, dtype=dtype))
         )
+        self.batch_counter = eqx.nn.StateIndex(jnp.zeros((), dtype=jnp.int32))
 
     def __call__(
         self, x: Array, state: State, *_, key: PRNGKeyArray | None = None, **__
@@ -181,14 +183,14 @@ class BatchNorm(AbstractNormStateful):
                 state = state.set(self.running_mean_var, (running_mean, running_var))
 
         out = x_normalized
-        if self.affine and self.gamma is not None and self.beta is not None:
+        if self.affine and self.weight is not None and self.bias is not None:
             if ndim > 1:
                 broadcast_shape = (-1,) + (1,) * (ndim - 1)
-                gamma_broadcasted = self.gamma.reshape(broadcast_shape)
-                beta_broadcasted = self.beta.reshape(broadcast_shape)
+                gamma_broadcasted = self.weight.reshape(broadcast_shape)
+                beta_broadcasted = self.bias.reshape(broadcast_shape)
                 out = gamma_broadcasted * x_normalized + beta_broadcasted
             else:
-                out = self.gamma * x_normalized + self.beta
+                out = self.weight * x_normalized + self.bias
 
         return out, state
 
@@ -200,7 +202,7 @@ class LocalResponseNormalization(eqx.Module):
     window of ``n`` neighbouring channels, following the original AlexNet
     formulation (Krizhevsky et al., 2012)::
 
-        b_{c,h,w} = x_{c,h,w} / (k + alpha * sum_{j} x_{j,h,w}^2)^beta
+        b_{c,h,w} = x_{c,h,w} / (k + alpha * sum_{j} x_{j,h,w}^2)^bias
 
     where the sum runs over at most ``n`` channels centred on ``c``.
 
@@ -210,7 +212,7 @@ class LocalResponseNormalization(eqx.Module):
             Defaults to ``5``.
         alpha: Scale factor for the squared activations.  Defaults to
             ``1e-4``.
-        beta: Exponent applied to the denominator.  Defaults to ``0.75``.
+        bias: Exponent applied to the denominator.  Defaults to ``0.75``.
 
     Example:
         >>> import jax.numpy as jnp
@@ -223,13 +225,13 @@ class LocalResponseNormalization(eqx.Module):
     k: int = eqx.field(static=True)
     n: int = eqx.field(static=True)
     alpha: float = eqx.field(static=True)
-    beta: float = eqx.field(static=True)
+    bias: float = eqx.field(static=True)
 
-    def __init__(self, k=2, n=5, alpha=1e-4, beta=0.75) -> None:
+    def __init__(self, k=2, n=5, alpha=1e-4, bias=0.75) -> None:
         self.k = k
         self.n = n
         self.alpha = alpha
-        self.beta = beta
+        self.bias = bias
 
     def __call__(self, x: Float[Array, "c h w"]) -> Float[Array, "c h w"]:
         c, _, _ = x.shape
@@ -237,7 +239,7 @@ class LocalResponseNormalization(eqx.Module):
 
         def _body(i):
             window = jax.lax.dynamic_slice_in_dim(p, i, self.n) ** 2
-            d = (jnp.einsum("ijk->jk", window) * self.alpha + self.k) ** self.beta
+            d = (jnp.einsum("ijk->jk", window) * self.alpha + self.k) ** self.bias
             b = x[i] / d
             return b
 

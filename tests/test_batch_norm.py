@@ -45,14 +45,14 @@ def test_batch_norm_against_pytorch_ndim_1():
             f"Failed at batch {b}"
         )
 
-        running_mean_j = bs.get(bn.state_index)[0]
+        running_mean_j = bs.get(bn.running_mean_var)[0]
         running_mean_t = tbn.running_mean
         assert running_mean_t is not None
         assert np.allclose(
             np.array(running_mean_j), running_mean_t.numpy(), atol=1e-6
         ), f"Failed at batch {b}"
 
-        running_var_j = bs.get(bn.state_index)[1]
+        running_var_j = bs.get(bn.running_mean_var)[1]
         running_var_t = tbn.running_var
 
         assert running_var_t is not None
@@ -101,14 +101,14 @@ def test_batch_norm_against_pytorch_ndim_2():
             f"Failed at batch {b}"
         )
 
-        running_mean_j = bs.get(bn.state_index)[0]
+        running_mean_j = bs.get(bn.running_mean_var)[0]
         running_mean_t = tbn.running_mean
         assert running_mean_t is not None
         assert np.allclose(
             np.array(running_mean_j), running_mean_t.numpy(), atol=1e-6
         ), f"Failed at batch {b}"
 
-        running_var_j = bs.get(bn.state_index)[1]
+        running_var_j = bs.get(bn.running_mean_var)[1]
         running_var_t = tbn.running_var
 
         assert running_var_t is not None
@@ -157,14 +157,14 @@ def test_batch_norm_against_pytorch_ndim_3():
             f"Failed at batch {b}"
         )
 
-        running_mean_j = bs.get(bn.state_index)[0]
+        running_mean_j = bs.get(bn.running_mean_var)[0]
         running_mean_t = tbn.running_mean
         assert running_mean_t is not None
         assert np.allclose(
             np.array(running_mean_j), running_mean_t.numpy(), atol=1e-6
         ), f"Failed at batch {b}"
 
-        running_var_j = bs.get(bn.state_index)[1]
+        running_var_j = bs.get(bn.running_mean_var)[1]
         running_var_t = tbn.running_var
 
         assert running_var_t is not None
@@ -211,14 +211,14 @@ def test_batch_norm_inference_ndim_1():
         )(x_j, bs)
         o_t = tbn(x_t)
 
-    running_mean_j = bs.get(bn.state_index)[0]
+    running_mean_j = bs.get(bn.running_mean_var)[0]
     running_mean_t = tbn.running_mean
     assert running_mean_t is not None
     assert np.allclose(np.array(running_mean_j), running_mean_t.numpy(), atol=1e-6), (
         "Running mean mismatch after training"
     )
 
-    running_var_j = bs.get(bn.state_index)[1]
+    running_var_j = bs.get(bn.running_mean_var)[1]
     running_var_t = tbn.running_var
     assert running_var_t is not None
     assert np.allclose(np.array(running_var_j), running_var_t.numpy(), atol=1e-6), (
@@ -251,7 +251,7 @@ def test_batch_norm_inference_ndim_1():
         )
 
         # Verify running stats haven't changed during inference
-        new_running_mean_j = bs.get(bn.state_index)[0]
+        new_running_mean_j = bs.get(bn.running_mean_var)[0]
         new_running_mean_t = tbn.running_mean
 
         assert np.allclose(new_running_mean_j, running_mean_j, atol=1e-6), (
@@ -262,7 +262,7 @@ def test_batch_norm_inference_ndim_1():
             new_running_mean_t.numpy(), running_mean_t.numpy(), atol=1e-6
         ), f"PyTorch running mean changed during inference at batch {b}"
 
-        new_running_var_j = bs.get(bn.state_index)[1]
+        new_running_var_j = bs.get(bn.running_mean_var)[1]
         new_running_var_t = tbn.running_var
 
         assert np.allclose(new_running_var_j, running_var_j, atol=1e-6), (
@@ -319,14 +319,14 @@ def test_batch_norm_inference_ndim_2():
         o_t = tbn(x_t)
 
     # Verify final training stats match
-    running_mean_j = bs.get(bn.state_index)[0]
+    running_mean_j = bs.get(bn.running_mean_var)[0]
     running_mean_t = tbn.running_mean
     assert running_mean_t is not None
     assert np.allclose(np.array(running_mean_j), running_mean_t.numpy(), atol=1e-6), (
         "Running mean mismatch after training"
     )
 
-    running_var_j = bs.get(bn.state_index)[1]
+    running_var_j = bs.get(bn.running_mean_var)[1]
     running_var_t = tbn.running_var
     assert running_var_t is not None
     assert np.allclose(np.array(running_var_j), running_var_t.numpy(), atol=1e-6), (
@@ -360,7 +360,7 @@ def test_batch_norm_inference_ndim_2():
         )
 
         # Verify running stats haven't changed during inference
-        new_running_mean_j = bs.get(bn.state_index)[0]
+        new_running_mean_j = bs.get(bn.running_mean_var)[0]
         new_running_mean_t = tbn.running_mean
 
         assert np.allclose(new_running_mean_j, running_mean_j, atol=1e-6), (
@@ -371,7 +371,7 @@ def test_batch_norm_inference_ndim_2():
             new_running_mean_t.numpy(), running_mean_t.numpy(), atol=1e-6
         ), f"PyTorch running mean changed during inference at batch {b}"
 
-        new_running_var_j = bs.get(bn.state_index)[1]
+        new_running_var_j = bs.get(bn.running_mean_var)[1]
         new_running_var_t = tbn.running_var
 
         assert np.allclose(new_running_var_j, running_var_j, atol=1e-6), (
@@ -429,14 +429,14 @@ def test_batch_norm_inference_ndim_3():
         o_t = tbn(x_t)
 
     # Verify final training stats match
-    running_mean_j = bs.get(bn.state_index)[0]
+    running_mean_j = bs.get(bn.running_mean_var)[0]
     running_mean_t = tbn.running_mean
     assert running_mean_t is not None
     assert np.allclose(np.array(running_mean_j), running_mean_t.numpy(), atol=1e-6), (
         "Running mean mismatch after training"
     )
 
-    running_var_j = bs.get(bn.state_index)[1]
+    running_var_j = bs.get(bn.running_mean_var)[1]
     running_var_t = tbn.running_var
     assert running_var_t is not None
     assert np.allclose(np.array(running_var_j), running_var_t.numpy(), atol=1e-6), (
@@ -470,7 +470,7 @@ def test_batch_norm_inference_ndim_3():
         )
 
         # Verify running stats haven't changed during inference
-        new_running_mean_j = bs.get(bn.state_index)[0]
+        new_running_mean_j = bs.get(bn.running_mean_var)[0]
         new_running_mean_t = tbn.running_mean
 
         assert np.allclose(new_running_mean_j, running_mean_j, atol=1e-6), (
@@ -481,7 +481,7 @@ def test_batch_norm_inference_ndim_3():
             new_running_mean_t.numpy(), running_mean_t.numpy(), atol=1e-6
         ), f"PyTorch running mean changed during inference at batch {b}"
 
-        new_running_var_j = bs.get(bn.state_index)[1]
+        new_running_var_j = bs.get(bn.running_mean_var)[1]
         new_running_var_t = tbn.running_var
 
         assert np.allclose(new_running_var_j, running_var_j, atol=1e-6), (

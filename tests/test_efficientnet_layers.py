@@ -6,12 +6,6 @@ import jax.numpy as jnp
 import numpy as np
 import pytest
 import torch
-from statedict2pytree import (
-    convert,
-    move_running_fields_to_the_end,
-    pytree_to_fields,
-    state_dict_to_fields,
-)
 from statedict2pytree.converter import autoconvert
 from torchvision.ops.misc import Conv2dNormActivation as TorchConv2dNormActivation
 from torchvision.ops.misc import SqueezeExcitation as TorchSqueezeExcitation
@@ -146,17 +140,8 @@ def test_Conv2dNormActivation_groups(
 
     # Convert weights
     weights_dict = torch_conv2d_norm_act.state_dict()
-    torchfields = state_dict_to_fields(weights_dict)
-    torchfields = move_running_fields_to_the_end(torchfields)
-    jaxfields, state_indices = pytree_to_fields((jax_conv2d_norm_act, state))
 
-    jax_conv2d_norm_act, state = convert(
-        weights_dict,
-        (jax_conv2d_norm_act, state),
-        jaxfields,
-        state_indices,
-        torchfields,
-    )
+    jax_conv2d_norm_act, state = autoconvert((jax_conv2d_norm_act, state), weights_dict)
 
     jax_conv2d_norm_act, state = eqx.nn.inference_mode((jax_conv2d_norm_act, state))
 
@@ -201,17 +186,8 @@ def test_SqueezeExcitation_parametrized(input_channels, squeeze_factor):
     torch_squeeze = TorchSqueezeExcitation(input_channels, squeeze_channels)
 
     weights_dict = torch_squeeze.state_dict()
-    torchfields = state_dict_to_fields(weights_dict)
-    torchfields = move_running_fields_to_the_end(torchfields)
-    jaxfields, state_indices = pytree_to_fields(jax_squeeze)
 
-    jax_squeeze = convert(
-        weights_dict,
-        jax_squeeze,
-        jaxfields,
-        state_indices,
-        torchfields,
-    )
+    jax_squeeze = autoconvert(jax_squeeze, weights_dict)
 
     # Generate input with appropriate shape for testing
     np.random.seed(42)
