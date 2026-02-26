@@ -6,6 +6,13 @@ from .normalization import BatchNorm, LayerNorm, LocalResponseNormalization
 from .regularization import StochasticDepth
 from .sequential import BatchedLinear
 from .state_space import SelectiveStateSpace
+from .transformer import (
+    Transformer,
+    TransformerDecoder,
+    TransformerDecoderLayer,
+    TransformerEncoder,
+    TransformerEncoderLayer,
+)
 
 __all__ = [
     "AbstractNorm",
@@ -21,4 +28,9 @@ __all__ = [
     "StochasticDepth",
     "BatchedLinear",
     "SelectiveStateSpace",
+    "Transformer",
+    "TransformerDecoder",
+    "TransformerDecoderLayer",
+    "TransformerEncoder",
+    "TransformerEncoderLayer",
 ]
