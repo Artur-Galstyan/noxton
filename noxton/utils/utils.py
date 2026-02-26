@@ -1,3 +1,6 @@
+import os
+import pathlib
+
 import equinox as eqx
 import jax
 import jax.numpy as jnp
@@ -57,3 +60,29 @@ def summarize_model(model: PyTree) -> str:
     lines.append("=" * 50)
 
     return "\n".join(lines)
+
+
+def default_training_dtype():
+    return jnp.bfloat16
+
+
+def dtype_to_str(dtype) -> str:
+    if hasattr(dtype, "__name__"):
+        # For simple types like jnp.float32, float, etc.
+        return dtype.__name__
+
+    # For more complex types like JaxArray with specific dtype
+    dtype_str = str(dtype)
+
+    # Remove common patterns to clean up the string
+    if "<class '" in dtype_str:
+        # Extract the name from "<class 'jax.numpy.float32'>" -> "float32"
+        dtype_str = dtype_str.split("'")[1].split(".")[-1]
+
+    return dtype_str
+
+
+def get_cache_path(model: str):
+    noxton_dir = os.path.expanduser(f"~/.noxton/models/{model}")
+    os.makedirs(noxton_dir, exist_ok=True)
+    return pathlib.Path(noxton_dir)
