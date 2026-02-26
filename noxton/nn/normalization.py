@@ -51,8 +51,9 @@ class BatchNorm(AbstractNormStateful):
         (1, 16)
     """
 
-    running_mean_var: eqx.nn.StateIndex
-    batch_counter: eqx.nn.StateIndex
+    running_mean: eqx.nn.StateIndex
+    running_var: eqx.nn.StateIndex
+    num_batches_tracked: eqx.nn.StateIndex
 
     weight: Float[Array, "size"] | None
     bias: Float[Array, "size"] | None
@@ -88,10 +89,9 @@ class BatchNorm(AbstractNormStateful):
         self.weight = jnp.ones(self.size, dtype=dtype) if self.affine else None
         self.bias = jnp.zeros(self.size, dtype=dtype) if self.affine else None
 
-        self.running_mean_var = eqx.nn.StateIndex(
-            (jnp.zeros(size, dtype=dtype), jnp.ones(size, dtype=dtype))
-        )
-        self.batch_counter = eqx.nn.StateIndex(jnp.zeros((), dtype=jnp.int32))
+        self.running_mean = eqx.nn.StateIndex(jnp.zeros(size, dtype=dtype))
+        self.running_var = eqx.nn.StateIndex(jnp.ones(size, dtype=dtype))
+        self.num_batches_tracked = eqx.nn.StateIndex(jnp.zeros((), dtype=jnp.int32))
 
     def __call__(
         self, x: Array, state: State, *_, key: PRNGKeyArray | None = None, **__
@@ -113,7 +113,8 @@ class BatchNorm(AbstractNormStateful):
             A ``(output, state)`` tuple where ``output`` has the same shape as
             ``x`` and ``state`` has updated running statistics (training only).
         """
-        running_mean, running_var = state.get(self.running_mean_var)
+        running_mean = state.get(self.running_mean)
+        running_var = state.get(self.running_var)
 
         input_shape = x.shape
         ndim = len(input_shape)
@@ -139,7 +140,8 @@ class BatchNorm(AbstractNormStateful):
                     batch_var * correction_factor
                 )
 
-                state = state.set(self.running_mean_var, (running_mean, running_var))
+                state = state.set(self.running_mean, running_mean)
+                state = state.set(self.running_var, running_var)
         else:
             spatial_axes = tuple(range(1, ndim))  # All dims except channel dim (0)
 
@@ -180,7 +182,8 @@ class BatchNorm(AbstractNormStateful):
                     batch_var * correction_factor
                 )
 
-                state = state.set(self.running_mean_var, (running_mean, running_var))
+                state = state.set(self.running_mean, running_mean)
+                state = state.set(self.running_var, running_var)
 
         out = x_normalized
         if self.affine and self.weight is not None and self.bias is not None:

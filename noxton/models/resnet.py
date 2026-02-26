@@ -8,12 +8,7 @@ import jax
 import jax.numpy as jnp
 from beartype.typing import Any, Literal
 from jaxtyping import Array, Float, PRNGKeyArray
-from statedict2pytree import (
-    convert,
-    move_running_fields_to_the_end,
-    pytree_to_fields,
-    state_dict_to_fields,
-)
+from statedict2pytree.converter import autoconvert
 
 from noxton.functions import kaiming_init_conv2d
 from noxton.nn import BatchNorm
@@ -42,7 +37,7 @@ _MODELS = {
 
 class Downsample(eqx.Module):
     conv: eqx.nn.Conv2d
-    bn: BatchNorm
+    norm: BatchNorm
 
     def __init__(
         self,
@@ -64,7 +59,7 @@ class Downsample(eqx.Module):
             dtype=dtype,
         )
 
-        self.bn = BatchNorm(out_channels, axis_name=axis_name, dtype=dtype)
+        self.norm = BatchNorm(out_channels, axis_name=axis_name, dtype=dtype)
 
     def __call__(
         self,
@@ -72,7 +67,7 @@ class Downsample(eqx.Module):
         state: eqx.nn.State,
     ) -> tuple[Float[Array, "c_out*e h/s w/s"], eqx.nn.State]:
         x = self.conv(x)
-        x, state = self.bn(x, state)
+        x, state = self.norm(x, state)
 
         return x, state
 
@@ -483,6 +478,52 @@ class ResNet(eqx.Module):
 
         return x, state
 
+    @staticmethod
+    def with_weights(
+        model: Literal[
+            "resnet18",
+            "resnet34",
+            "resnet50",
+            "resnet101",
+            "resnet152",
+            "resnext50_32x4d",
+            "resnext101_32x8d",
+            "resnext101_64x4d",
+            "wide_resnet50_2",
+            "wide_resnet101_2",
+        ],
+        weights: Literal[
+            "resnet18_IMAGENET1K_V1",
+            "resnet34_IMAGENET1K_V1",
+            "resnet50_IMAGENET1K_V1",
+            "resnet50_IMAGENET1K_V2",
+            "resnet101_IMAGENET1K_V1",
+            "resnet101_IMAGENET1K_V2",
+            "resnet152_IMAGENET1K_V1",
+            "resnet152_IMAGENET1K_V2",
+            "resnext50_32X4D_IMAGENET1K_V1",
+            "resnext50_32X4D_IMAGENET1K_V2",
+            "resnext101_32X8D_IMAGENET1K_V1",
+            "resnext101_32X8D_IMAGENET1K_V2",
+            "resnext101_64X4D_IMAGENET1K_V1",
+            "wide_resnet50_2_IMAGENET1K_V1",
+            "wide_resnet50_2_IMAGENET1K_V2",
+            "wide_resnet101_2_IMAGENET1K_V1",
+            "wide_resnet101_2_IMAGENET1K_V2",
+        ]
+        | None = None,
+        key: PRNGKeyArray | None = None,
+        dtype: Any | None = None,
+    ) -> tuple["ResNet", eqx.nn.State]:
+        """
+        Loads a ResNet variant with optional pre-trained weights.
+        If no key is provided, the default key (42) is used. Dtype defaults to float32.
+
+        Returns:
+            tuple[ResNet, eqx.nn.State]
+        """
+        return load_resnet(model=model, weights=weights, key=key, dtype=dtype)
+
 
 def _with_weights(
     pytree,
@@ -527,18 +568,7 @@ def _with_weights(
     elif not isinstance(weights_dict, dict):
         raise TypeError(f"Loaded weights are not a dictionary: {type(weights_dict)}")
 
-    torchfields = state_dict_to_fields(weights_dict)
-    torchfields = move_running_fields_to_the_end(torchfields)
-    jaxfields, state_indices = pytree_to_fields((resnet, state))
-
-    resnet, state = convert(
-        weights_dict,
-        (resnet, state),
-        jaxfields,
-        state_indices,
-        torchfields,
-        dtype=dtype,
-    )
+    resnet, state = autoconvert((resnet, state), weights_dict, dtype=dtype)
 
     if cache:
         eqx.tree_serialise_leaves(cache_filepath, (resnet, state))

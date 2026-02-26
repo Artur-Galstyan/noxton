@@ -135,11 +135,12 @@ class AlexNet(eqx.Module):
     @staticmethod
     def with_weights(
         model: str | None = None,
+        weights: str | None = None,
         key: PRNGKeyArray | None = None,
         dtype: Any | None = None,
     ) -> "AlexNet":
         """
-        Loads alexnet. The model parameter is unused (there are no variants of AlexNet).
+        Loads alexnet. Neither model nor weights are used (there are no variants of AlexNet).
         If no key is provided, the default key (42) is used. Dtype defaults to float32.
 
         Returns:
