@@ -514,6 +514,7 @@ class ResNet(eqx.Module):
         | None = None,
         key: PRNGKeyArray | None = None,
         dtype: Any | None = None,
+        axis_name: str = "batch",
     ) -> tuple["ResNet", eqx.nn.State]:
         """
         Loads a ResNet variant with optional pre-trained weights.
@@ -522,7 +523,9 @@ class ResNet(eqx.Module):
         Returns:
             tuple[ResNet, eqx.nn.State]
         """
-        return load_resnet(model=model, weights=weights, key=key, dtype=dtype)
+        return load_resnet(
+            model=model, weights=weights, key=key, dtype=dtype, axis_name=axis_name
+        )
 
 
 def _with_weights(
@@ -576,7 +579,7 @@ def _with_weights(
     return resnet, state
 
 
-def _resnet18(key, n_classes=1000, dtype: Any = None):
+def _resnet18(key, n_classes=1000, dtype: Any = None, axis_name: str = "batch"):
     key, init_key = jax.random.split(key)
     resnet, state = eqx.nn.make_with_state(ResNet)(
         BasicBlock,
@@ -588,12 +591,13 @@ def _resnet18(key, n_classes=1000, dtype: Any = None):
         replace_stride_with_dilation=None,
         key=key,
         dtype=dtype,
+        axis_name=axis_name,
     )
     resnet, state = kaiming_init_conv2d(resnet, state, init_key)
     return resnet, state
 
 
-def _resnet34(key, n_classes=1000, dtype: Any = None):
+def _resnet34(key, n_classes=1000, dtype: Any = None, axis_name: str = "batch"):
     key, init_key = jax.random.split(key)
     resnet, state = eqx.nn.make_with_state(ResNet)(
         BasicBlock,
@@ -605,12 +609,13 @@ def _resnet34(key, n_classes=1000, dtype: Any = None):
         replace_stride_with_dilation=None,
         key=key,
         dtype=dtype,
+        axis_name=axis_name,
     )
     resnet, state = kaiming_init_conv2d(resnet, state, init_key)
     return resnet, state
 
 
-def _resnet50(key, n_classes=1000, dtype: Any = None):
+def _resnet50(key, n_classes=1000, dtype: Any = None, axis_name: str = "batch"):
     key, init_key = jax.random.split(key)
     resnet, state = eqx.nn.make_with_state(ResNet)(
         Bottleneck,
@@ -622,12 +627,13 @@ def _resnet50(key, n_classes=1000, dtype: Any = None):
         replace_stride_with_dilation=None,
         key=key,
         dtype=dtype,
+        axis_name=axis_name,
     )
     resnet, state = kaiming_init_conv2d(resnet, state, init_key)
     return resnet, state
 
 
-def _resnet101(key, n_classes=1000, dtype: Any = None):
+def _resnet101(key, n_classes=1000, dtype: Any = None, axis_name: str = "batch"):
     key, init_key = jax.random.split(key)
     resnet, state = eqx.nn.make_with_state(ResNet)(
         Bottleneck,
@@ -639,12 +645,13 @@ def _resnet101(key, n_classes=1000, dtype: Any = None):
         replace_stride_with_dilation=None,
         key=key,
         dtype=dtype,
+        axis_name=axis_name,
     )
     resnet, state = kaiming_init_conv2d(resnet, state, init_key)
     return resnet, state
 
 
-def _resnet152(key, n_classes=1000, dtype: Any = None):
+def _resnet152(key, n_classes=1000, dtype: Any = None, axis_name: str = "batch"):
     key, init_key = jax.random.split(key)
     resnet, state = eqx.nn.make_with_state(ResNet)(
         Bottleneck,
@@ -656,12 +663,13 @@ def _resnet152(key, n_classes=1000, dtype: Any = None):
         replace_stride_with_dilation=None,
         key=key,
         dtype=dtype,
+        axis_name=axis_name,
     )
     resnet, state = kaiming_init_conv2d(resnet, state, init_key)
     return resnet, state
 
 
-def _resnext50_32x4d(key, n_classes=1000, dtype: Any = None):
+def _resnext50_32x4d(key, n_classes=1000, dtype: Any = None, axis_name: str = "batch"):
     key, init_key = jax.random.split(key)
     resnet, state = eqx.nn.make_with_state(ResNet)(
         Bottleneck,
@@ -673,12 +681,13 @@ def _resnext50_32x4d(key, n_classes=1000, dtype: Any = None):
         replace_stride_with_dilation=None,
         key=key,
         dtype=dtype,
+        axis_name=axis_name,
     )
     resnet, state = kaiming_init_conv2d(resnet, state, init_key)
     return resnet, state
 
 
-def _resnext101_32x8d(key, n_classes=1000, dtype: Any = None):
+def _resnext101_32x8d(key, n_classes=1000, dtype: Any = None, axis_name: str = "batch"):
     key, init_key = jax.random.split(key)
     resnet, state = eqx.nn.make_with_state(ResNet)(
         Bottleneck,
@@ -690,12 +699,13 @@ def _resnext101_32x8d(key, n_classes=1000, dtype: Any = None):
         replace_stride_with_dilation=None,
         key=key,
         dtype=dtype,
+        axis_name=axis_name,
     )
     resnet, state = kaiming_init_conv2d(resnet, state, init_key)
     return resnet, state
 
 
-def _resnext101_64x4d(key, n_classes=1000, dtype: Any = None):
+def _resnext101_64x4d(key, n_classes=1000, dtype: Any = None, axis_name: str = "batch"):
     key, init_key = jax.random.split(key)
     resnet, state = eqx.nn.make_with_state(ResNet)(
         Bottleneck,
@@ -707,12 +717,13 @@ def _resnext101_64x4d(key, n_classes=1000, dtype: Any = None):
         replace_stride_with_dilation=None,
         key=key,
         dtype=dtype,
+        axis_name=axis_name,
     )
     resnet, state = kaiming_init_conv2d(resnet, state, init_key)
     return resnet, state
 
 
-def _wide_resnet50_2(key, n_classes=1000, dtype: Any = None):
+def _wide_resnet50_2(key, n_classes=1000, dtype: Any = None, axis_name: str = "batch"):
     key, init_key = jax.random.split(key)
     resnet, state = eqx.nn.make_with_state(ResNet)(
         Bottleneck,
@@ -724,12 +735,13 @@ def _wide_resnet50_2(key, n_classes=1000, dtype: Any = None):
         replace_stride_with_dilation=None,
         key=key,
         dtype=dtype,
+        axis_name=axis_name,
     )
     resnet, state = kaiming_init_conv2d(resnet, state, init_key)
     return resnet, state
 
 
-def _wide_resnet101_2(key, n_classes=1000, dtype: Any = None):
+def _wide_resnet101_2(key, n_classes=1000, dtype: Any = None, axis_name: str = "batch"):
     key, init_key = jax.random.split(key)
     resnet, state = eqx.nn.make_with_state(ResNet)(
         Bottleneck,
@@ -741,6 +753,7 @@ def _wide_resnet101_2(key, n_classes=1000, dtype: Any = None):
         replace_stride_with_dilation=None,
         key=key,
         dtype=dtype,
+        axis_name=axis_name,
     )
     resnet, state = kaiming_init_conv2d(resnet, state, init_key)
     return resnet, state
@@ -831,9 +844,10 @@ def load_resnet(
     | None = None,
     n_classes: int = 1000,
     cache: bool = True,
+    axis_name: str = "batch",
     *,
     key: PRNGKeyArray | None = None,
-    dtype: Any | None = None,  # Added optional dtype parameter
+    dtype: Any | None = None,
 ) -> tuple[ResNet, eqx.nn.State]:
     """
     Load a ResNet model with optional pre-trained weights.
@@ -868,25 +882,35 @@ def load_resnet(
 
     match model:
         case "resnet18":
-            resnet, state = _resnet18(key, n_classes, dtype=dtype)
+            resnet, state = _resnet18(key, n_classes, dtype=dtype, axis_name=axis_name)
         case "resnet34":
-            resnet, state = _resnet34(key, n_classes, dtype=dtype)
+            resnet, state = _resnet34(key, n_classes, dtype=dtype, axis_name=axis_name)
         case "resnet50":
-            resnet, state = _resnet50(key, n_classes, dtype=dtype)
+            resnet, state = _resnet50(key, n_classes, dtype=dtype, axis_name=axis_name)
         case "resnet101":
-            resnet, state = _resnet101(key, n_classes, dtype=dtype)
+            resnet, state = _resnet101(key, n_classes, dtype=dtype, axis_name=axis_name)
         case "resnet152":
-            resnet, state = _resnet152(key, n_classes, dtype=dtype)
+            resnet, state = _resnet152(key, n_classes, dtype=dtype, axis_name=axis_name)
         case "resnext50_32x4d":
-            resnet, state = _resnext50_32x4d(key, n_classes, dtype=dtype)
+            resnet, state = _resnext50_32x4d(
+                key, n_classes, dtype=dtype, axis_name=axis_name
+            )
         case "resnext101_32x8d":
-            resnet, state = _resnext101_32x8d(key, n_classes, dtype=dtype)
+            resnet, state = _resnext101_32x8d(
+                key, n_classes, dtype=dtype, axis_name=axis_name
+            )
         case "resnext101_64x4d":
-            resnet, state = _resnext101_64x4d(key, n_classes, dtype=dtype)
+            resnet, state = _resnext101_64x4d(
+                key, n_classes, dtype=dtype, axis_name=axis_name
+            )
         case "wide_resnet50_2":
-            resnet, state = _wide_resnet50_2(key, n_classes, dtype=dtype)
+            resnet, state = _wide_resnet50_2(
+                key, n_classes, dtype=dtype, axis_name=axis_name
+            )
         case "wide_resnet101_2":
-            resnet, state = _wide_resnet101_2(key, n_classes, dtype=dtype)
+            resnet, state = _wide_resnet101_2(
+                key, n_classes, dtype=dtype, axis_name=axis_name
+            )
         case _:
             raise ValueError(f"Unknown model name: {model}")
 

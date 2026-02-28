@@ -103,6 +103,18 @@ wheels = [
 ]
 
 [[package]]
+name = "ftfy"
+version = "6.3.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "wcwidth" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/a5/d3/8650919bc3c7c6e90ee3fa7fd618bf373cbbe55dff043bd67353dbb20cd8/ftfy-6.3.1.tar.gz", hash = "sha256:9b3c3d90f84fb267fe64d375a07b7f8912d817cf86009ae134aa03e1819506ec", size = 308927, upload-time = "2024-10-26T00:50:35.149Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ab/6e/81d47999aebc1b155f81eca4477a616a70f238a2549848c38983f3c22a82/ftfy-6.3.1-py3-none-any.whl", hash = "sha256:7c70eb532015cd2f9adb53f101fb6c7945988d023a085d127d1573dc49dd0083", size = 44821, upload-time = "2024-10-26T00:50:33.425Z" },
+]
+
+[[package]]
 name = "identify"
 version = "2.6.16"
 source = { registry = "https://pypi.org/simple" }
@@ -298,10 +310,11 @@ wheels = [
 
 [[package]]
 name = "noxton"
-version = "0.1.0"
+version = "0.1.1"
 source = { virtual = "." }
 dependencies = [
     { name = "equinox" },
+    { name = "ftfy" },
     { name = "jax" },
     { name = "statedict2pytree" },
 ]
@@ -317,8 +330,9 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "equinox", specifier = ">=0.13.4" },
+    { name = "ftfy", specifier = ">=6.3.1" },
     { name = "jax", specifier = ">=0.9.0.1" },
-    { name = "statedict2pytree", specifier = ">=2.0.1" },
+    { name = "statedict2pytree", specifier = ">=2.0.2" },
 ]
 
 [package.metadata.requires-dev]
@@ -814,7 +828,7 @@ wheels = [
 
 [[package]]
 name = "statedict2pytree"
-version = "2.0.1"
+version = "2.0.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "beartype" },
@@ -825,9 +839,9 @@ dependencies = [
     { name = "pydantic" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/c3/06/7c9d72f540f1e70da044be794772e32bcf0f765da21f5e92145264392a17/statedict2pytree-2.0.1.tar.gz", hash = "sha256:61829bb08a791d44eaf54934a92cdfd552903736071e270cf92cbd0bfad3d71f", size = 103675, upload-time = "2026-02-17T21:15:30.717Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/a4/ff/ce5a1c865262834cba36bb8a63a96c92eb194b2e3707659cf3587c6901de/statedict2pytree-2.0.2.tar.gz", hash = "sha256:6338921db3a90a3913f99c9db2efc05b94311fe047df395ac4738b87d984e166", size = 103898, upload-time = "2026-02-26T16:45:20.615Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/1b/83/f0631a3e4e0f4777d3be569821b056eff6a87a6ccde203a5575f999a146c/statedict2pytree-2.0.1-py3-none-any.whl", hash = "sha256:a0aae04ea3e23d30533d1c0163d1ea2179955565feb6998c5d0901b1f75ac2f7", size = 5327, upload-time = "2026-02-17T21:15:32.292Z" },
+    { url = "https://files.pythonhosted.org/packages/c8/8a/15877a54cf50e481d6c99dbeaa4ab45608e168edbf5e23766df7b8cb6781/statedict2pytree-2.0.2-py3-none-any.whl", hash = "sha256:fad816fc00c5e627be2b4f54ff621066fe81fa6ae592c7997bfa0a84d4253c4c", size = 5457, upload-time = "2026-02-26T16:45:19.264Z" },
 ]
 
 [[package]]
@@ -985,4 +999,13 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/1e/67/cbae4bf7683a64755c2c1778c418fea96d00e34395bb91743f08bd951571/wadler_lindig-0.1.7.tar.gz", hash = "sha256:81d14d3fe77d441acf3ebd7f4aefac20c74128bf460e84b512806dccf7b2cd55", size = 15842, upload-time = "2025-06-18T07:00:42.843Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/8d/96/04e7b441807b26b794da5b11e59ed7f83b2cf8af202bd7eba8ad2fa6046e/wadler_lindig-0.1.7-py3-none-any.whl", hash = "sha256:e3ec83835570fd0a9509f969162aeb9c65618f998b1f42918cfc8d45122fe953", size = 20516, upload-time = "2025-06-18T07:00:41.684Z" },
+]
+
+[[package]]
+name = "wcwidth"
+version = "0.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/35/a2/8e3becb46433538a38726c948d3399905a4c7cabd0df578ede5dc51f0ec2/wcwidth-0.6.0.tar.gz", hash = "sha256:cdc4e4262d6ef9a1a57e018384cbeb1208d8abbc64176027e2c2455c81313159", size = 159684, upload-time = "2026-02-06T19:19:40.919Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/68/5a/199c59e0a824a3db2b89c5d2dade7ab5f9624dbf6448dc291b46d5ec94d3/wcwidth-0.6.0-py3-none-any.whl", hash = "sha256:1a3a1e510b553315f8e146c54764f4fb6264ffad731b3d78088cdb1478ffbdad", size = 94189, upload-time = "2026-02-06T19:19:39.646Z" },
 ]
