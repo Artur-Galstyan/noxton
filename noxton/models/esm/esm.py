@@ -12,7 +12,7 @@ from beartype.typing import Any, Literal, Type, Union, cast
 from jaxtyping import Array, Float, Int, PRNGKeyArray
 from statedict2pytree.converter import autoconvert
 
-from noxton.functions import swiglu
+from noxton.functions import rbf, swiglu
 from noxton.nn import EmbeddingBag, EmbeddingWithPadding
 from noxton.utils import default_floating_dtype
 
@@ -926,14 +926,6 @@ class ESMC(eqx.Module):
         esmc = autoconvert(esmc, state_dict)
 
         return esmc
-
-
-def rbf(values, v_min, v_max, n_bins=16):
-    rbf_centers = jnp.linspace(v_min, v_max, n_bins, dtype=values.dtype)
-    rbf_centers = rbf_centers.reshape([1] * len(values.shape) + [-1])
-    rbf_std = (v_max - v_min) / n_bins
-    z = (jnp.expand_dims(values, axis=-1) - rbf_centers) / rbf_std
-    return jnp.exp(-(z**2))
 
 
 def build_affine3d_from_coordinates(

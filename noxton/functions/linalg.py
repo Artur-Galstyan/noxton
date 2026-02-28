@@ -1,5 +1,5 @@
 import jax.numpy as jnp
-from jaxtyping import Array, Float
+from jaxtyping import Array
 
 
 def graham_schmidt(x_axis: Array, xy_plane: Array, eps: float = 1e-12):
@@ -38,52 +38,3 @@ def graham_schmidt(x_axis: Array, xy_plane: Array, eps: float = 1e-12):
     e2 = jnp.cross(x_axis, e1, axis=-1)
     rots = jnp.stack([x_axis, e1, e2], axis=-1)
     return rots
-
-
-def qmul(
-    a: Float[Array, "w x y z"], b: Float[Array, "w x y z"]
-) -> Float[Array, "w x y z"]:
-    """
-    Multiply two quaternions.
-
-    Args:
-        a: Quaternions as tensor of shape (..., 4), real part first.
-        b: Quaternions as tensor of shape (..., 4), real part first.
-
-    Returns:
-        The product of a and b, a tensor of quaternions shape (..., 4).
-    """
-    aw, ax, ay, az = a[..., 0], a[..., 1], a[..., 2], a[..., 3]
-    bw, bx, by, bz = b[..., 0], b[..., 1], b[..., 2], b[..., 3]
-    ow = aw * bw - ax * bx - ay * by - az * bz
-    ox = aw * bx + ax * bw + ay * bz - az * by
-    oy = aw * by - ax * bz + ay * bw + az * bx
-    oz = aw * bz + ax * by - ay * bx + az * bw
-    return jnp.stack((ow, ox, oy, oz), -1)
-
-
-def qrot(q: Float[Array, "w x y z"], p: Float[Array, "x y z"]) -> Array:
-    """
-    Rotates p by quaternion q.
-
-    Args:
-        q: Quaternions as tensor of shape (..., 4), real part first.
-        p: Points as tensor of shape (..., 3)
-
-    Returns:
-        The rotated version of p, of shape (..., 3)
-    """
-    aw, ax, ay, az = q[..., 0], q[..., 1], q[..., 2], q[..., 3]
-    bx, by, bz = p[..., 0], p[..., 1], p[..., 2]
-    # fmt: off
-    ow =         - ax * bx - ay * by - az * bz
-    ox = aw * bx           + ay * bz - az * by
-    oy = aw * by - ax * bz           + az * bx
-    oz = aw * bz + ax * by - ay * bx
-    # fmt: on
-    q_mul_pts = jnp.stack((ow, ox, oy, oz), -1)
-    return qmul(q_mul_pts, qinv(q))[..., 1:]
-
-
-def qinv(q: Array):
-    return q * jnp.array([1, -1, -1, -1])

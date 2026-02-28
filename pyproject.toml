@@ -14,6 +14,7 @@ dependencies = [
 [project.optional-dependencies]
 esm = [
     "huggingface-hub>=0.27.0",
+    "esm"
 ]
 pretrained = [
     "torch>=2.10.0",

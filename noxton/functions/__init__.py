@@ -5,8 +5,9 @@ from .attention import (
     shifted_window_attention,
 )
 from .embedding import sinusoidal_embedding
+from .geometry import qinv, qmul, qrot, rbf
 from .initialization import kaiming_init_conv2d
-from .linalg import graham_schmidt, qinv, qmul, qrot
+from .linalg import graham_schmidt
 from .masking import (
     build_attention_mask,
     canonical_attn_mask,
@@ -38,4 +39,5 @@ __all__ = [
     "qmul",
     "qinv",
     "qrot",
+    "rbf",
 ]
