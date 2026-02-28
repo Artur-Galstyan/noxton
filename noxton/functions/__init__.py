@@ -6,6 +6,7 @@ from .attention import (
 )
 from .embedding import sinusoidal_embedding
 from .initialization import kaiming_init_conv2d
+from .linalg import graham_schmidt, qinv, qmul, qrot
 from .masking import (
     build_attention_mask,
     canonical_attn_mask,
@@ -33,4 +34,8 @@ __all__ = [
     "canonical_mask",
     "make_causal_mask",
     "selective_scan",
+    "graham_schmidt",
+    "qmul",
+    "qinv",
+    "qrot",
 ]
