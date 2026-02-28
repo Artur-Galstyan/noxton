@@ -887,12 +887,11 @@ class ESMC(eqx.Module):
         return sequence_logits, x, hiddens
 
     @staticmethod
-    def from_pretrained(
+    def with_weights(
         model: Literal["esmc_300m", "esmc_600m"],
-        *,
         key: PRNGKeyArray | None = None,
         dtype: Any | None = None,
-        inference: bool = False,
+        axis_name: str = "batch",
     ) -> "ESMC":
         import torch
 
@@ -922,7 +921,6 @@ class ESMC(eqx.Module):
             n_layers=n_layers,
             key=key,
             dtype=dtype,
-            inference=inference,
         )
 
         esmc = autoconvert(esmc, state_dict)
@@ -1275,12 +1273,11 @@ class ESM3(eqx.Module):
         return self.output_heads(x, embedding)
 
     @staticmethod
-    def from_pretrained(
+    def with_weights(
         model: Literal["esm3_open"] = "esm3_open",
-        *,
         key: PRNGKeyArray | None = None,
         dtype: Any | None = None,
-        inference: bool = False,
+        axis_name: str = "batch",
     ) -> "ESM3":
         import torch
 
@@ -1306,7 +1303,6 @@ class ESM3(eqx.Module):
             n_layers=n_layers,
             key=key,
             dtype=dtype,
-            inference=inference,
         )
         esm3 = autoconvert(esm3, state_dict)
         return esm3
