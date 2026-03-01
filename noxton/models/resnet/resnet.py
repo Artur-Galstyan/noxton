@@ -541,11 +541,11 @@ def _from_pretrained(
     if weights_url is None:
         raise ValueError(f"No weights found for {weights_name}")
 
-    jaxonmodels_dir = os.path.expanduser("~/.jaxonmodels/models")
-    os.makedirs(jaxonmodels_dir, exist_ok=True)
+    noxton_dir = os.path.expanduser("~/.noxton/models")
+    os.makedirs(noxton_dir, exist_ok=True)
 
     cache_filename = f"{weights_name}-{dtype_str}.eqx"
-    cache_filepath = str(Path(jaxonmodels_dir) / cache_filename)
+    cache_filepath = str(Path(noxton_dir) / cache_filename)
 
     if cache:
         if os.path.exists(cache_filepath):
@@ -554,7 +554,7 @@ def _from_pretrained(
                 (resnet, state),
             )
 
-    weights_dir = os.path.expanduser("~/.jaxonmodels/pytorch_weights")
+    weights_dir = os.path.expanduser("~/.noxton/pytorch_weights")
     os.makedirs(weights_dir, exist_ok=True)
     filename = weights_url.split("/")[-1]
     weights_file = os.path.join(weights_dir, filename)
@@ -860,11 +860,11 @@ def load_resnet(
         n_classes: Number of output classes for the final fully connected layer.
         cache: If True, attempts to load/save the JAX model with weights from/to
         a local cache
-               (~/.jaxonmodels/models). Cache filenames include the dtype.
+               (~/.noxton/models). Cache filenames include the dtype.
         key: JAX random key for initialization. Defaults to jax.random.key(42).
         dtype: The data type for the model's parameters
         (e.g., jnp.float32, jnp.bfloat16).
-               Defaults to `jaxonmodels.functions.default_floating_dtype()`.
+               Defaults to float32.
 
     Returns:
         A tuple containing the ResNet model (eqx.Module)

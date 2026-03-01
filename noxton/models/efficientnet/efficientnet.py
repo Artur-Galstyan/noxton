@@ -635,12 +635,12 @@ def _from_pretrained(
         raise ValueError(f"No weights found for {weights}")
 
     # Create directories for caching
-    jaxonmodels_dir = os.path.expanduser("~/.jaxonmodels/models")
-    os.makedirs(jaxonmodels_dir, exist_ok=True)
+    noxton_dir = os.path.expanduser("~/.noxton/models")
+    os.makedirs(noxton_dir, exist_ok=True)
 
     # Define cache file path including dtype
     cache_filename = f"{weights}-{dtype_str}.eqx"
-    cache_filepath = str(Path(jaxonmodels_dir) / cache_filename)
+    cache_filepath = str(Path(noxton_dir) / cache_filename)
 
     # Check if cached model exists
     if cache:
@@ -651,7 +651,7 @@ def _from_pretrained(
             )
 
     # Download weights if not already downloaded
-    weights_dir = os.path.expanduser("~/.jaxonmodels/pytorch_weights")
+    weights_dir = os.path.expanduser("~/.noxton/pytorch_weights")
     os.makedirs(weights_dir, exist_ok=True)
     filename = weights_url.split("/")[-1]
     weights_file = os.path.join(weights_dir, filename)
@@ -952,7 +952,7 @@ def load_efficientnet(
         cache: Whether to cache the model and weights.
         key: Random key for initialization. Defaults to jax.random.key(42).
         dtype: The data type for the model's parameters (e.g., jnp.float32).
-               Defaults to jaxonmodels.functions.default_floating_dtype().
+               Defaults to float32.
 
     Returns:
         A tuple of (model, state)

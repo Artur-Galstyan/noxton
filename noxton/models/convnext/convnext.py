@@ -306,14 +306,14 @@ class ConvNeXt(StatefulLayer):
                 raise ValueError(f"Unknown model: {model!r}")
 
         dtype_str = dtype_to_str(dtype)
-        jaxonmodels_path = get_cache_path("convnext")
-        cache_file = str(jaxonmodels_path / f"convnext-{model}-{dtype_str}.eqx")
+        noxton_path = get_cache_path("convnext")
+        cache_file = str(noxton_path / f"convnext-{model}-{dtype_str}.eqx")
 
         if os.path.exists(cache_file):
             return eqx.tree_deserialise_leaves(cache_file, (convnext_model, state))
 
         weights_url = _MODELS[weights_key]
-        weights_file = os.path.join(jaxonmodels_path, f"{weights_key}.pth")
+        weights_file = os.path.join(noxton_path, f"{weights_key}.pth")
         if not os.path.exists(weights_file):
             urlretrieve(weights_url, weights_file)
 

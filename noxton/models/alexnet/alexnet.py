@@ -158,14 +158,14 @@ class AlexNet(eqx.Module):
         dtype_str = dtype_to_str(dtype)
         alexnet = AlexNet(n_classes=1000, key=key, dtype=dtype)
 
-        jaxonmodels_path = get_cache_path("alexnet")
-        if os.path.exists(str(jaxonmodels_path / f"alexnet-{dtype_str}.eqx")):
+        noxton_path = get_cache_path("alexnet")
+        if os.path.exists(str(noxton_path / f"alexnet-{dtype_str}.eqx")):
             return eqx.tree_deserialise_leaves(
-                str(jaxonmodels_path / f"alexnet-{dtype_str}.eqx"), alexnet
+                str(noxton_path / f"alexnet-{dtype_str}.eqx"), alexnet
             )
 
         weights_url = "https://download.pytorch.org/models/alexnet-owt-7be5be79.pth"
-        weights_file = os.path.join(jaxonmodels_path, "alexnet-owt-7be5be79.pth")
+        weights_file = os.path.join(noxton_path, "alexnet-owt-7be5be79.pth")
         if not os.path.exists(weights_file):
             urlretrieve(weights_url, weights_file)
 
@@ -178,7 +178,7 @@ class AlexNet(eqx.Module):
         alexnet = autoconvert(alexnet, weights_dict, dtype=dtype)
 
         eqx.tree_serialise_leaves(
-            str(Path(jaxonmodels_path) / f"alexnet-{dtype_str}.eqx"), alexnet
+            str(Path(noxton_path) / f"alexnet-{dtype_str}.eqx"), alexnet
         )
 
         return alexnet

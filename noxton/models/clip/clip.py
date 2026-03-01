@@ -833,19 +833,17 @@ def _from_pretrained(
         weights_url = _MODELS.get(model)
         if weights_url is None:
             raise ValueError(f"No model found for {model}")
-        jaxonmodels_dir = os.path.expanduser("~/.jaxonmodels/models")
-        os.makedirs(jaxonmodels_dir, exist_ok=True)
+        noxton_dir = os.path.expanduser("~/.noxton/models")
+        os.makedirs(noxton_dir, exist_ok=True)
 
         if os.path.exists(
-            str(Path(jaxonmodels_dir) / f"{model.replace('/', '_')}-{dtype_str}.eqx")
+            str(Path(noxton_dir) / f"{model.replace('/', '_')}-{dtype_str}.eqx")
         ):
             return eqx.tree_deserialise_leaves(
-                str(
-                    Path(jaxonmodels_dir) / f"{model.replace('/', '_')}-{dtype_str}.eqx"
-                ),
+                str(Path(noxton_dir) / f"{model.replace('/', '_')}-{dtype_str}.eqx"),
                 (clip, state),
             )
-        weights_dir = os.path.expanduser("~/.jaxonmodels/pytorch_weights")
+        weights_dir = os.path.expanduser("~/.noxton/pytorch_weights")
         os.makedirs(weights_dir, exist_ok=True)
         filename = weights_url.split("/")[-1].replace("/", "_")
         weights_file = os.path.join(weights_dir, filename)
@@ -868,7 +866,7 @@ def _from_pretrained(
         clip, state = autoconvert((clip, state), weights_dict)
 
         eqx.tree_serialise_leaves(
-            str(Path(jaxonmodels_dir) / f"{model.replace('/', '_')}-{dtype_str}.eqx"),
+            str(Path(noxton_dir) / f"{model.replace('/', '_')}-{dtype_str}.eqx"),
             (clip, state),
         )
     return clip, state
@@ -1197,7 +1195,7 @@ def load_clip(
                    Defaults to "batch".
         key: A JAX PRNG key for initializing parameters if `from_pretrained=False`.
         dtype: The data type to use for the model parameters. Defaults to the
-               `jaxonmodels` default floating-point type.
+               `noxton` default floating-point type.
 
     Returns:
         A tuple `(clip_model, state)` where `clip_model` is the CLIP model
