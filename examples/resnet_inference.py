@@ -43,7 +43,7 @@ def preprocess_image(image_path):
 def main():
     # Load model with pre-trained weights
     # r, s = resnet18(weights="resnet18_IMAGENET1K_V1", key=jax.random.key(0))
-    r, s = ResNet.with_weights(
+    r, s = ResNet.from_pretrained(
         model="resnet50",
         weights="resnet50_IMAGENET1K_V2",
         key=jax.random.key(0),

@@ -479,7 +479,7 @@ class ResNet(eqx.Module):
         return x, state
 
     @staticmethod
-    def with_weights(
+    def from_pretrained(
         model: Literal[
             "resnet18",
             "resnet34",
@@ -528,7 +528,7 @@ class ResNet(eqx.Module):
         )
 
 
-def _with_weights(
+def _from_pretrained(
     pytree,
     weights_name: str,
     cache: bool,
@@ -916,7 +916,7 @@ def load_resnet(
 
     if weights is not None:
         _assert_model_and_weights_fit(model, weights)
-        resnet, state = _with_weights((resnet, state), weights, cache, dtype=dtype)
+        resnet, state = _from_pretrained((resnet, state), weights, cache, dtype=dtype)
 
     assert resnet is not None
     assert state is not None

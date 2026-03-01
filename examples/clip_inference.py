@@ -79,7 +79,7 @@ image_pil = Image.open("cat.jpg")
 image = transform_image(image_pil, image_resolution)
 
 # Load CLIP model
-clip, state = CLIP.with_weights(model="ViT-B/32", dtype=jnp.float16)
+clip, state = CLIP.from_pretrained(model="ViT-B/32", dtype=jnp.float16)
 clip, state = eqx.nn.inference_mode((clip, state))
 
 # Run the model with vmap for batching

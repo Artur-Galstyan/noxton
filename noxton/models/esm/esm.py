@@ -887,7 +887,7 @@ class ESMC(eqx.Module):
         return sequence_logits, x, hiddens
 
     @staticmethod
-    def with_weights(
+    def from_pretrained(
         model: Literal["esmc_300m", "esmc_600m"],
         key: PRNGKeyArray | None = None,
         dtype: Any | None = None,
@@ -1265,7 +1265,7 @@ class ESM3(eqx.Module):
         return self.output_heads(x, embedding)
 
     @staticmethod
-    def with_weights(
+    def from_pretrained(
         model: Literal["esm3_open"] = "esm3_open",
         key: PRNGKeyArray | None = None,
         dtype: Any | None = None,

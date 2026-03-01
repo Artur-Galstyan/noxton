@@ -494,7 +494,7 @@ class EfficientNet(eqx.Module):
         return x, state
 
     @staticmethod
-    def with_weights(
+    def from_pretrained(
         model: Literal[
             "efficientnet_b0",
             "efficientnet_b1",
@@ -620,7 +620,7 @@ def _efficientnet_conf(
     return inverted_residual_setting, last_channel
 
 
-def _with_weights(
+def _from_pretrained(
     pytree,
     weights: str,
     cache: bool,
@@ -1017,7 +1017,7 @@ def load_efficientnet(
 
     if weights:
         _assert_model_and_weights_fit(model, weights)
-        efficientnet, state = _with_weights(
+        efficientnet, state = _from_pretrained(
             (efficientnet, state), weights, cache, dtype=dtype
         )
 

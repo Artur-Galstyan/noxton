@@ -133,7 +133,7 @@ class AlexNet(eqx.Module):
         return x
 
     @staticmethod
-    def with_weights(
+    def from_pretrained(
         model: str | None = None,
         weights: str | None = None,
         key: PRNGKeyArray | None = None,

@@ -709,7 +709,7 @@ class CLIP(eqx.Module):
         return x
 
     @staticmethod
-    def with_weights(
+    def from_pretrained(
         model: Literal[
             "RN50",
             "RN101",
@@ -732,13 +732,59 @@ class CLIP(eqx.Module):
         Returns:
             tuple[CLIP, eqx.nn.State]
         """
-        return load_clip(
-            model=model,
-            with_weights=True,
-            axis_name=axis_name,
-            key=key,
-            dtype=dtype,
-        )
+        if dtype is None:
+            dtype = default_floating_dtype()
+        assert dtype is not None
+        if key is None:
+            key = jax.random.key(42)
+        clip, state = None, None
+        inference = False
+        match model:
+            case "RN50":
+                clip, state = _clip_resnet50(
+                    key=key, dtype=dtype, inference=inference, axis_name=axis_name
+                )
+            case "RN101":
+                clip, state = _clip_resnet101(
+                    key=key, dtype=dtype, inference=inference, axis_name=axis_name
+                )
+            case "RN50x4":
+                clip, state = _clip_rn50x4(
+                    key=key, dtype=dtype, inference=inference, axis_name=axis_name
+                )
+            case "RN50x16":
+                clip, state = _clip_rn50x16(
+                    key=key, dtype=dtype, inference=inference, axis_name=axis_name
+                )
+            case "RN50x64":
+                clip, state = _clip_rn50x64(
+                    key=key, dtype=dtype, inference=inference, axis_name=axis_name
+                )
+            case "ViT-B/32":
+                clip, state = _clip_vit_b_32(
+                    key=key, dtype=dtype, inference=inference, axis_name=axis_name
+                )
+            case "ViT-B/16":
+                clip, state = _clip_vit_b_16(
+                    key=key, dtype=dtype, inference=inference, axis_name=axis_name
+                )
+            case "ViT-L/14":
+                clip, state = _clip_vit_l_14(
+                    key=key, dtype=dtype, inference=inference, axis_name=axis_name
+                )
+            case "ViT-L/14@336px":
+                clip, state = _clip_vit_l_14_336px(
+                    key=key, dtype=dtype, inference=inference, axis_name=axis_name
+                )
+
+        if clip is None or state is None:
+            raise ValueError(f"Unrecognised model passed: {model}")
+
+        clip, state = _from_pretrained((clip, state), model, dtype=dtype)
+
+        assert clip is not None
+        assert state is not None
+        return clip, state
 
     def __call__(
         self,
@@ -766,7 +812,7 @@ class CLIP(eqx.Module):
         return logits_per_image, logits_per_text, state
 
 
-def _with_weights(
+def _from_pretrained(
     pytree: PyTree,
     model: Literal[
         "RN50",
@@ -779,7 +825,6 @@ def _with_weights(
         "ViT-L/14",
         "ViT-L/14@336px",
     ],
-    cache: bool,
     dtype: Any,
 ):
     clip, state = pytree
@@ -791,19 +836,15 @@ def _with_weights(
         jaxonmodels_dir = os.path.expanduser("~/.jaxonmodels/models")
         os.makedirs(jaxonmodels_dir, exist_ok=True)
 
-        if cache:
-            if os.path.exists(
+        if os.path.exists(
+            str(Path(jaxonmodels_dir) / f"{model.replace('/', '_')}-{dtype_str}.eqx")
+        ):
+            return eqx.tree_deserialise_leaves(
                 str(
                     Path(jaxonmodels_dir) / f"{model.replace('/', '_')}-{dtype_str}.eqx"
-                )
-            ):
-                return eqx.tree_deserialise_leaves(
-                    str(
-                        Path(jaxonmodels_dir)
-                        / f"{model.replace('/', '_')}-{dtype_str}.eqx"
-                    ),
-                    (clip, state),
-                )
+                ),
+                (clip, state),
+            )
         weights_dir = os.path.expanduser("~/.jaxonmodels/pytorch_weights")
         os.makedirs(weights_dir, exist_ok=True)
         filename = weights_url.split("/")[-1].replace("/", "_")
@@ -826,13 +867,10 @@ def _with_weights(
             weights_dict.pop(k, None)
         clip, state = autoconvert((clip, state), weights_dict)
 
-        if cache:
-            eqx.tree_serialise_leaves(
-                str(
-                    Path(jaxonmodels_dir) / f"{model.replace('/', '_')}-{dtype_str}.eqx"
-                ),
-                (clip, state),
-            )
+        eqx.tree_serialise_leaves(
+            str(Path(jaxonmodels_dir) / f"{model.replace('/', '_')}-{dtype_str}.eqx"),
+            (clip, state),
+        )
     return clip, state
 
 
@@ -1138,7 +1176,7 @@ def load_clip(
         "ViT-L/14",
         "ViT-L/14@336px",
     ],
-    with_weights: bool = False,
+    from_pretrained: bool = False,
     cache: bool = True,
     inference: bool = True,
     axis_name: str = "batch",
@@ -1150,14 +1188,14 @@ def load_clip(
 
     Args:
         model: The name of the CLIP model variant to load.
-        with_weights: Whether to load the pretrained weights from OpenAI.
+        from_pretrained: Whether to load the pretrained weights from OpenAI.
         cache: Whether to cache the downloaded weights and the converted model.
         inference: Whether to initialize the model in inference mode.
                    (e.g., for BatchNorm)
                    Defaults to True.
         axis_name: The name of the batch axis used for BatchNorm synchronization.
                    Defaults to "batch".
-        key: A JAX PRNG key for initializing parameters if `with_weights=False`.
+        key: A JAX PRNG key for initializing parameters if `from_pretrained=False`.
         dtype: The data type to use for the model parameters. Defaults to the
                `jaxonmodels` default floating-point type.
 
@@ -1165,57 +1203,3 @@ def load_clip(
         A tuple `(clip_model, state)` where `clip_model` is the CLIP model
         and `state` is the initial state (e.g., for BatchNorm statistics).
     """
-    if dtype is None:
-        dtype = default_floating_dtype()
-    assert dtype is not None
-    if key is None:
-        key = jax.random.key(42)
-    clip, state = None, None
-
-    match model:
-        case "RN50":
-            clip, state = _clip_resnet50(
-                key=key, dtype=dtype, inference=inference, axis_name=axis_name
-            )
-        case "RN101":
-            clip, state = _clip_resnet101(
-                key=key, dtype=dtype, inference=inference, axis_name=axis_name
-            )
-        case "RN50x4":
-            clip, state = _clip_rn50x4(
-                key=key, dtype=dtype, inference=inference, axis_name=axis_name
-            )
-        case "RN50x16":
-            clip, state = _clip_rn50x16(
-                key=key, dtype=dtype, inference=inference, axis_name=axis_name
-            )
-        case "RN50x64":
-            clip, state = _clip_rn50x64(
-                key=key, dtype=dtype, inference=inference, axis_name=axis_name
-            )
-        case "ViT-B/32":
-            clip, state = _clip_vit_b_32(
-                key=key, dtype=dtype, inference=inference, axis_name=axis_name
-            )
-        case "ViT-B/16":
-            clip, state = _clip_vit_b_16(
-                key=key, dtype=dtype, inference=inference, axis_name=axis_name
-            )
-        case "ViT-L/14":
-            clip, state = _clip_vit_l_14(
-                key=key, dtype=dtype, inference=inference, axis_name=axis_name
-            )
-        case "ViT-L/14@336px":
-            clip, state = _clip_vit_l_14_336px(
-                key=key, dtype=dtype, inference=inference, axis_name=axis_name
-            )
-
-    if clip is None or state is None:
-        raise ValueError(f"Unrecognised model passed: {model}")
-
-    if with_weights:
-        clip, state = _with_weights((clip, state), model, cache, dtype=dtype)
-
-    assert clip is not None
-    assert state is not None
-    return clip, state

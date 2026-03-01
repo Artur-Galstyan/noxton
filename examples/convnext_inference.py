@@ -14,7 +14,7 @@ def main():
     # model, state = load_convnext(
     #     "convnext_base", weights="convnext_base_IMAGENET1K_V1", dtype=jnp.float32
     # )
-    model, state = ConvNeXt.with_weights(
+    model, state = ConvNeXt.from_pretrained(
         "convnext_base",
         dtype=jnp.float32,
         key=jax.random.key(22),

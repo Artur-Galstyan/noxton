@@ -262,7 +262,7 @@ class ConvNeXt(StatefulLayer):
         return x, state
 
     @staticmethod
-    def with_weights(
+    def from_pretrained(
         model: Literal[
             "convnext_tiny",
             "convnext_small",

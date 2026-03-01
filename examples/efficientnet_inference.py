@@ -11,7 +11,7 @@ from noxton.models import EfficientNet
 
 
 def main():
-    model, state = EfficientNet.with_weights(
+    model, state = EfficientNet.from_pretrained(
         "efficientnet_b0", weights="efficientnet_b0_IMAGENET1K_V1", dtype=jnp.float16
     )
 

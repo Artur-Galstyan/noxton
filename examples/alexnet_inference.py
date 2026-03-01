@@ -45,7 +45,7 @@ image_path = os.path.join(current_dir, "cat.jpg")
 jax_input = preprocess_image(image_path)[0]
 
 
-anet = AlexNet.with_weights(key=jax.random.key(44), dtype=jnp.float16)
+anet = AlexNet.from_pretrained(key=jax.random.key(44), dtype=jnp.float16)
 anet = eqx.nn.inference_mode(anet)
 print(anet.features[0].weight.dtype)
 jax_output = anet(jnp.array(jax_input, dtype=jnp.float16))
