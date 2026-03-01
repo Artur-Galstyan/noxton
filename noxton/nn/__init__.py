@@ -13,6 +13,7 @@ from .transformer import (
     TransformerDecoderLayer,
     TransformerEncoder,
     TransformerEncoderLayer,
+    VisionTransformer,
 )
 
 __all__ = [
@@ -34,6 +35,7 @@ __all__ = [
     "TransformerDecoderLayer",
     "TransformerEncoder",
     "TransformerEncoderLayer",
+    "VisionTransformer",
     "Mamba",
     "SelectiveStateSpaceModel",
     "MambaBlock",
