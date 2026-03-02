@@ -1,0 +1,34 @@
+site_name: Noxton
+site_description: JAX/Equinox implementations of state-of-the-art neural network architectures with pretrained weights
+
+theme:
+  name: readthedocs
+
+markdown_extensions:
+  - admonition
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Getting Started: getting-started.md
+  - NN Layers:
+      - Overview: nn.md
+      - Attention: nn/attention.md
+      - Normalization: nn/normalization.md
+      - Convolution: nn/convolution.md
+      - Embedding: nn/embedding.md
+      - Regularization: nn/regularization.md
+      - Linear: nn/linear.md
+      - State Space (Mamba): nn/mamba.md
+      - Transformer: nn/transformer.md
+  - Models:
+      - AlexNet: models/alexnet.md
+      - ResNet: models/resnet.md
+      - ConvNeXt: models/convnext.md
+      - EfficientNet: models/efficientnet.md
+      - Swin Transformer: models/swin-transformer.md
+      - CLIP: models/clip.md
+      - ESM: models/esm.md
+  - Examples: examples.md
