@@ -3,7 +3,12 @@ from .attention import MultiheadAttention, SqueezeExcitation
 from .convolution import ConvNormActivation
 from .embedding import EmbeddingBag, EmbeddingWithPadding
 from .mamba import Mamba, MambaBlock, SelectiveStateSpaceModel
-from .normalization import BatchNorm, LayerNorm, LocalResponseNormalization
+from .normalization import (
+    BatchNorm,
+    LayerNorm,
+    LocalResponseNormalization,
+    ResidualLayerNorm,
+)
 from .regularization import StochasticDepth
 from .sequential import BatchedLinear
 from .state_space import SelectiveStateSpace
@@ -15,6 +20,7 @@ from .transformer import (
     TransformerEncoderLayer,
     VisionTransformer,
 )
+from .xlstm import mLSTMCell
 
 __all__ = [
     "AbstractNorm",
@@ -26,6 +32,7 @@ __all__ = [
     "EmbeddingWithPadding",
     "BatchNorm",
     "LayerNorm",
+    "ResidualLayerNorm",
     "LocalResponseNormalization",
     "StochasticDepth",
     "BatchedLinear",
@@ -39,4 +46,5 @@ __all__ = [
     "Mamba",
     "SelectiveStateSpaceModel",
     "MambaBlock",
+    "mLSTMCell",
 ]

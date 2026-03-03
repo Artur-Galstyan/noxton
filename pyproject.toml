@@ -27,3 +27,6 @@ dev = [
     "torch>=2.10.0",
     "torchvision>=0.25.0",
 ]
+
+[tool.ruff.lint]
+ignore = ["E741", "F722"]

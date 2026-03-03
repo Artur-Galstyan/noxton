@@ -2,6 +2,7 @@ import equinox as eqx
 import jax
 import jax.numpy as jnp
 from beartype.typing import Any, Hashable, Sequence
+from equinox import Module, field
 from equinox.nn import State
 from jaxtyping import Array, Float, PRNGKeyArray
 
@@ -73,8 +74,8 @@ class BatchNorm(AbstractNormStateful):
         eps: float = 1e-5,
         momentum: float = 0.1,
         affine: bool = True,
-        inference: bool = False,
         dtype: Any | None = None,
+        inference: bool = False,
     ):
         if dtype is None:
             dtype = default_floating_dtype()
@@ -364,3 +365,100 @@ class LayerNorm(AbstractNorm):
 
         out = out.astype(orig_dtype)
         return out
+
+
+class ResidualLayerNorm(Module):
+    """Layer normalisation with a residual scale parameter.
+
+    Normalises the input by subtracting the mean and dividing by the standard
+    deviation computed over the entire array. The learnable affine scale
+    parameter is formulated as a residual ``1 + weight``, where ``weight`` is
+    initialised to zero.
+
+    Unlike ``LayerNorm``, this module expects the input to exactly match the
+    configured ``shape`` and does not automatically broadcast over leading
+    batch dimensions; use ``jax.vmap`` for batched inputs.
+
+    Computation is performed at a higher precision (at least ``float32``) and
+    the result is cast back to the original dtype.
+
+    Args:
+        shape: The exact shape of the unbatched input array. Pass a single
+            ``int`` for the common 1-D case.
+        eps: Small constant added to the variance for numerical stability.
+            Defaults to ``1e-5``.
+        use_weight: If ``True``, learn a per-element residual scale parameter
+            initialised to ``0``. Defaults to ``True``.
+        use_bias: If ``True``, learn a per-element bias parameter initialised
+            to ``0``. Defaults to ``False``.
+        dtype: Floating-point dtype for the affine parameters. Defaults to
+            ``None``.
+
+    Raises:
+        ValueError: If the input shape does not exactly match ``shape``.
+
+    Example:
+        >>> import jax
+        >>> import jax.numpy as jnp
+        >>> rln = ResidualLayerNorm(shape=64)
+        >>> x = jnp.ones((10, 64))
+        >>> jax.vmap(rln)(x).shape
+        (10, 64)
+    """
+
+    shape: tuple[int, ...] = field(static=True)
+    eps: float = field(static=True)
+    use_weight: bool = field(static=True)
+    use_bias: bool = field(static=True)
+    weight: Float[Array, "*shape"] | None
+    bias: Float[Array, "*shape"] | None
+
+    def __init__(
+        self,
+        shape: int | Sequence[int],
+        eps: float = 1e-5,
+        use_weight: bool = True,
+        use_bias: bool = False,
+        dtype=None,
+    ):
+        if isinstance(shape, int):
+            shape = (shape,)
+        else:
+            shape = tuple(shape)
+        self.shape = shape
+        self.eps = eps
+        self.use_weight = use_weight
+        self.use_bias = use_bias
+        self.weight = jnp.zeros(shape, dtype=dtype) if use_weight else None
+        self.bias = jnp.zeros(shape, dtype=dtype) if use_bias else None
+
+    def __call__(
+        self,
+        x: Float[Array, "*shape"],
+        *,
+        key: PRNGKeyArray | None = None,
+    ) -> Array:
+        if x.shape != self.shape:
+            raise ValueError(
+                f"Expected shape {self.shape}, got {x.shape}. You might need jax.vmap."
+            )
+
+        orig_dtype = x.dtype
+        with jax.numpy_dtype_promotion("standard"):
+            dtype = jnp.result_type(x.dtype, jnp.float32)
+
+        x = x.astype(dtype)
+        mean = jnp.mean(x, keepdims=True)
+        variance = jnp.var(x, keepdims=True)
+        variance = jnp.maximum(0.0, variance)
+        inv = jax.lax.rsqrt(variance + self.eps)
+        out = (x - mean) * inv
+
+        if self.use_weight:
+            assert self.weight is not None
+            out = (1.0 + self.weight.astype(dtype)) * out
+        if self.use_bias:
+            assert self.bias is not None
+            out = out + self.bias.astype(dtype)
+
+        return out.astype(orig_dtype)
