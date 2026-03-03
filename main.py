@@ -1,18 +1,21 @@
-import equinox as eqx
 import jax
+import jax.numpy as jnp
+
+from noxton.nn import mLSTMCell
+
+max_seq_len = 4
+embed_dim = 16
+num_heads = 8
+seq_len = 4
 
 
-class Model(eqx.Module):
-    inference: bool = eqx.field(static=True)
-    lin: eqx.nn.Linear
+cell = mLSTMCell(embed_dim, num_heads, key=jax.random.key(22), max_seq_len=4)
 
-    def __init__(self):
-        self.inference = False
-        self.lin = eqx.nn.Linear(10, 10, key=jax.random.key(2))
+q, k, v = (
+    jnp.ones(shape=(seq_len, embed_dim)),
+    jnp.ones(shape=(seq_len, embed_dim)),
+    jnp.ones(shape=(seq_len, embed_dim)),
+)
 
 
-model = Model()
-print(model)
-
-model = eqx.nn.inference_mode(model)
-print(model)
+cell(q, k, v)
