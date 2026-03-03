@@ -1118,14 +1118,14 @@ dev = [
 
 [[package]]
 name = "numpix"
-version = "0.9.12"
+version = "0.9.13"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/aa/06/669d4c15c6b0547ceddd218b5031963a454cc3ceccd22a39d7593c9a8c82/numpix-0.9.12.tar.gz", hash = "sha256:cdc369e9c9db15bd285063a7a41c22da9f69bc8f174057e7dc9a1b5db57e021f", size = 14245, upload-time = "2026-03-03T18:57:15.619Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/d5/89/baa0ad10886bab86c0d3e5f9f324ca564ca67e4eea5ca722a539058f3df7/numpix-0.9.13.tar.gz", hash = "sha256:8fb644a745a0438073ed684c85a406bab77806f29eecdea2488d9a10ad7e92b5", size = 14268, upload-time = "2026-03-03T20:43:17.863Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/6b/40/c75e9d3c4f0829d123b2e449890061756dd18bc3f3c094cbeaf510d23da1/numpix-0.9.12-py3-none-any.whl", hash = "sha256:b85ed29df4d166c794b05ae94ab975f318239aa35b66b38ca3c7f611beb8b187", size = 13050, upload-time = "2026-03-03T18:57:16.418Z" },
+    { url = "https://files.pythonhosted.org/packages/e9/d3/e2db0d0c285b6b92fb92e8fd8addcf0a2d33087726884749c2cdc653a005/numpix-0.9.13-py3-none-any.whl", hash = "sha256:49ff3a0f1b2b3a0ec02438a72806d10e0c7b3612ced1f78ed78bf49fbff5ba01", size = 13074, upload-time = "2026-03-03T20:43:15.439Z" },
 ]
 
 [[package]]

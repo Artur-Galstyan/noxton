@@ -60,6 +60,47 @@ def parallel_stabilized_simple(
     return h_tilde_state
 
 
+def recurrent_step_stabilized_simple(
+    c_state: Array,
+    n_state: Array,
+    m_state: Array,
+    q: Float[Array, "num_heads 1 head_dim"],
+    k: Float[Array, "num_heads 1 head_dim"],
+    v: Float[Array, "num_heads 1 head_dim"],
+    igate_preact: Array,
+    fgate_preact: Array,
+    eps: float = 1e-6,
+    **kwargs,
+) -> tuple[Array, tuple[Array, Array, Array]]:
+    NH, S, DH = q.shape
+
+    q = q.reshape(NH, DH, 1)
+    k = k.reshape(NH, DH, 1)
+    v = v.reshape(NH, DH, 1)
+
+    log_fg_act = jax.nn.log_sigmoid(fgate_preact)
+
+    # update rule
+    m_state_new = jnp.maximum(log_fg_act + m_state, igate_preact)
+
+    fg_act = jnp.exp(log_fg_act + m_state - m_state_new)
+    ig_act = jnp.exp(igate_preact - m_state_new)
+
+    k_scaled = k / jnp.sqrt(DH)
+
+    c_state_new = fg_act * c_state + ig_act * (k_scaled @ v.transpose(0, 2, 1))
+    n_state_new = fg_act * n_state + ig_act * k_scaled
+
+    h_num = q.transpose(0, 2, 1) @ c_state_new
+
+    qn_dotproduct = q.transpose(0, 2, 1) @ n_state_new
+    max_val = jnp.exp(-m_state_new)
+    h_denom = jnp.maximum(jnp.abs(qn_dotproduct), max_val) + eps
+    h = h_num / h_denom
+
+    return h, (c_state_new, n_state_new, m_state_new)
+
+
 class mLSTMCell(eqx.Module):
     max_seq_len: int
     embedding_dim: int
@@ -135,6 +176,72 @@ class mLSTMCell(eqx.Module):
         h_state = h_state.transpose(1, 0, 2).reshape(seq_len, -1)
         h_state_norm = eqx.filter_vmap(self.outnorm)(h_state)
         return h_state_norm
+
+    def step(
+        self,
+        q: Array,
+        k: Array,
+        v: Array,
+        mlstm_state: tuple[Array, Array, Array] | None = None,
+        **kwargs,
+    ) -> tuple[Array, tuple[Array, Array, Array]]:
+        S, _ = q.shape  # (S, H)
+        assert S == 1, (
+            f"mLSTMCell.step only supports sequence length S=1, but got S={S}."
+        )
+
+        if_gate_input = jnp.concatenate([q, k, v], axis=-1)
+        q = q.reshape(S, self.num_heads, -1)  # (S, NH, DH)
+        k = k.reshape(S, self.num_heads, -1)  # (S, NH, DH)
+        v = v.reshape(S, self.num_heads, -1)  # (S, NH, DH)
+
+        _, NH, DH = q.shape
+
+        q = q.transpose(1, 0, 2)  # (NH, S, DH)
+        k = k.transpose(1, 0, 2)  # (NH, S, DH)
+        v = v.transpose(1, 0, 2)  # (NH, S, DH)
+
+        # compute input and forget gate pre-activations
+        igate_preact = eqx.filter_vmap(self.igate)(if_gate_input)  # (S, NH)
+        igate_preact = jnp.expand_dims(igate_preact, axis=-1)  # (S, NH, 1)
+        igate_preact = igate_preact.transpose(1, 0, 2)  # (NH, S, 1)
+
+        fgate_preact = eqx.filter_vmap(self.fgate)(if_gate_input)  # (S, NH)
+        fgate_preact = jnp.expand_dims(fgate_preact, axis=-1)  # (S, NH, 1)
+        fgate_preact = fgate_preact.transpose(1, 0, 2)  # (NH, S, 1)
+
+        if mlstm_state is None:
+            c_state = jnp.zeros(shape=(NH, DH, DH))
+            n_state = jnp.zeros(shape=(NH, DH, 1))
+            m_state = jnp.zeros(shape=(NH, 1, 1))
+        else:
+            c_state, n_state, m_state = mlstm_state
+
+        assert c_state.shape == (NH, DH, DH), (
+            f"Expected c_state shape {(NH, DH, DH)}, but got {c_state.shape}."
+        )
+        assert n_state.shape == (NH, DH, 1), (
+            f"Expected n_state shape {(NH, DH, 1)}, but got {n_state.shape}."
+        )
+        assert m_state.shape == (NH, 1, 1), (
+            f"Expected m_state shape {(NH, 1, 1)}, but got {m_state.shape}."
+        )
+
+        h_state, mlstm_state = recurrent_step_stabilized_simple(
+            c_state=c_state,
+            n_state=n_state,
+            m_state=m_state,
+            q=q,
+            k=k,
+            v=v,
+            igate_preact=igate_preact,
+            fgate_preact=fgate_preact,
+        )  # (NH, 1 DH), ((NH, DH, DH), (NH, DH, 1), (NH, 1, 1))
+        h_state = h_state.transpose(1, 0, 2).reshape(
+            S, -1
+        )  # (NH, 1, DH) -> (1, NH, DH) -> (1, NH*DH) = (S, embedding_dim)
+        h_state_norm = eqx.filter_vmap(self.outnorm)(h_state)  # vmap over S
+        return h_state_norm, mlstm_state
 
 
 class mLSTMLayer(eqx.Module):

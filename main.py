@@ -1,3 +1,4 @@
+import equinox as eqx
 import jax
 import jax.numpy as jnp
 
@@ -19,3 +20,15 @@ q, k, v = (
 
 
 cell(q, k, v)
+
+
+q, k, v = (
+    jnp.ones(shape=(1, embed_dim)),
+    jnp.ones(shape=(1, embed_dim)),
+    jnp.ones(shape=(1, embed_dim)),
+)
+
+step_fn_jit = eqx.filter_jit(cell.step)
+step_fn_jit(q, k, v)
+step_fn_jit(q, k, v)
+step_fn_jit(q, k, v)
