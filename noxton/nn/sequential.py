@@ -124,3 +124,50 @@ class BatchedLinear(eqx.Module):
             if self.use_bias and self.bias is not None:
                 result = result + self.bias
             return result
+
+
+class LinearHeadwiseExpand(eqx.Module):
+    """This is a structured projection layer that projects the input to a higher dimension.
+    It only allows integer up-projection factors, i.e. the output dimension is a multiple of the input dimension.
+    """
+
+    weight: Array
+    bias: Array | None
+
+    num_heads: int
+
+    def __init__(
+        self,
+        in_features: int,
+        num_heads: int,
+        out_features: int,
+        use_bias: bool = True,
+        *,
+        key: PRNGKeyArray,
+        dtype: Any | None = None,
+    ):
+        if dtype is None:
+            dtype = default_floating_dtype()
+        assert dtype is not None
+        self.num_heads = num_heads
+        out_features_per_head = out_features // num_heads
+        weight_shape = (num_heads, out_features_per_head, in_features // num_heads)
+        wkey, bkey = jax.random.split(key)
+        self.weight = math.sqrt(2 / 5 / weight_shape[-1]) * jax.random.normal(
+            key=wkey,
+            shape=weight_shape,
+            dtype=dtype,
+        )
+        if use_bias:
+            self.bias = jnp.zeros(out_features)
+        else:
+            self.bias = None
+
+    def __call__(self, x: Array) -> Array:
+        shape = x.shape
+        x = x.reshape(*shape[:-1], self.num_heads, -1)
+        x = jnp.einsum("...hd,hod->...ho", x, self.weight)
+        x = x.reshape(*shape[:-1], -1)
+        if self.bias is not None:
+            x = x + self.bias
+        return x

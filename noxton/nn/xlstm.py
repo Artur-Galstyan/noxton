@@ -4,7 +4,7 @@ import jax.numpy as jnp
 from beartype.typing import Any
 from jaxtyping import Array, Float, PRNGKeyArray
 
-from noxton.nn import ResidualLayerNorm
+from noxton.nn import CausalConv1d, LinearHeadwiseExpand, ResidualLayerNorm
 
 
 def parallel_stabilized_simple(
@@ -179,9 +179,9 @@ class mLSTMCell(eqx.Module):
 
     def step(
         self,
-        q: Array,
-        k: Array,
-        v: Array,
+        q: Float[Array, "seq_len embed_dim"],
+        k: Float[Array, "seq_len embed_dim"],
+        v: Float[Array, "seq_len embed_dim"],
         mlstm_state: tuple[Array, Array, Array] | None = None,
         **kwargs,
     ) -> tuple[Array, tuple[Array, Array, Array]]:
@@ -201,7 +201,6 @@ class mLSTMCell(eqx.Module):
         k = k.transpose(1, 0, 2)  # (NH, S, DH)
         v = v.transpose(1, 0, 2)  # (NH, S, DH)
 
-        # compute input and forget gate pre-activations
         igate_preact = eqx.filter_vmap(self.igate)(if_gate_input)  # (S, NH)
         igate_preact = jnp.expand_dims(igate_preact, axis=-1)  # (S, NH, 1)
         igate_preact = igate_preact.transpose(1, 0, 2)  # (NH, S, 1)
@@ -245,7 +244,97 @@ class mLSTMCell(eqx.Module):
 
 
 class mLSTMLayer(eqx.Module):
-    pass
+    proj_up: eqx.nn.Linear
+    q_proj: LinearHeadwiseExpand
+    k_proj: LinearHeadwiseExpand
+    v_proj: LinearHeadwiseExpand
+    conv1d: CausalConv1d
+    mlstm_cell: mLSTMCell
+    learnable_skip: Array
+    proj_down: eqx.nn.Linear
+    dropout: eqx.nn.Dropout
+
+    def __init__(
+        self,
+        embedding_dim: int,
+        inner_embedding_dim: int,
+        qkv_proj_blocksize: int,
+        use_bias: bool,
+        conv1d_kernel_size: int,
+        max_seq_len: int,
+        num_heads: int,
+        dropout_p: float,
+        *,
+        key: PRNGKeyArray,
+        dtype: Any | None = None,
+    ):
+        key, proj_key = jax.random.split(key)
+        self.proj_up = eqx.nn.Linear(
+            in_features=embedding_dim,
+            out_features=2 * inner_embedding_dim,
+            use_bias=use_bias,
+            key=proj_key,
+            dtype=dtype,
+        )
+
+        num_proj_heads = round(inner_embedding_dim // qkv_proj_blocksize)
+
+        key, qkey = jax.random.split(key)
+        self.q_proj = LinearHeadwiseExpand(
+            in_features=inner_embedding_dim,
+            out_features=inner_embedding_dim,
+            num_heads=num_proj_heads,
+            use_bias=use_bias,
+            dtype=dtype,
+            key=qkey,
+        )
+        key, kkey = jax.random.split(key)
+        self.k_proj = LinearHeadwiseExpand(
+            in_features=inner_embedding_dim,
+            out_features=inner_embedding_dim,
+            num_heads=num_proj_heads,
+            use_bias=use_bias,
+            dtype=dtype,
+            key=kkey,
+        )
+        key, vkey = jax.random.split(key)
+        self.v_proj = LinearHeadwiseExpand(
+            in_features=inner_embedding_dim,
+            out_features=inner_embedding_dim,
+            num_heads=num_proj_heads,
+            use_bias=use_bias,
+            dtype=dtype,
+            key=vkey,
+        )
+
+        key, convkey = jax.random.split(key)
+        self.conv1d = CausalConv1d(
+            feature_dim=inner_embedding_dim,
+            kernel_size=conv1d_kernel_size,
+            key=convkey,
+            channel_mixing=False,
+            dtype=dtype,
+        )
+        key, cellkey = jax.random.split(key)
+        self.mlstm_cell = mLSTMCell(
+            max_seq_len=max_seq_len,
+            embedding_dim=inner_embedding_dim,
+            num_heads=num_heads,
+            key=cellkey,
+            dtype=dtype,
+        )
+
+        self.learnable_skip = jnp.ones(inner_embedding_dim)
+
+        key, proj_down_key = jax.random.split(key)
+        self.proj_down = eqx.nn.Linear(
+            in_features=inner_embedding_dim,
+            out_features=embedding_dim,
+            use_bias=use_bias,
+            key=proj_down_key,
+            dtype=dtype,
+        )
+        self.dropout = eqx.nn.Dropout(dropout_p)
 
 
 class sLSTMCell(eqx.Module):

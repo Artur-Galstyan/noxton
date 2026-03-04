@@ -3,11 +3,13 @@ from itertools import repeat
 
 import equinox as eqx
 import jax
+import jax.numpy as jnp
 from beartype.typing import Any, Callable, Sequence, cast
 from equinox.nn import StatefulLayer
 from jaxtyping import Array, Float, PRNGKeyArray
 
 from noxton.nn import AbstractNorm, AbstractNormStateful
+from noxton.utils import default_floating_dtype
 
 
 def make_ntuple(x: Any, n: int) -> tuple[Any, ...]:
@@ -167,3 +169,137 @@ class ConvNormActivation(StatefulLayer):
             x = self.activation(x)
 
         return x, state
+
+
+class CausalConv1d(eqx.Module):
+    """
+    Implements causal depthwise convolution of a time series tensor.
+    Input:  Tensor of shape (T,F), i.e. (time, feature)
+    Output: Tensor of shape (T,F)
+
+    Args:
+        feature_dim: number of features in the input tensor
+        kernel_size: size of the kernel for the depthwise convolution
+        causal_conv_bias: whether to use bias in the depthwise convolution
+        channel_mixing: whether to use channel mixing (i.e. groups=1) or not (i.e. groups=feature_dim)
+                        If True, it mixes the convolved features across channels.
+                        If False, all the features are convolved independently.
+    """
+
+    groups: int
+    kernel_size: int
+    conv: eqx.nn.Conv1d | None
+    use_bias: bool
+
+    def __init__(
+        self,
+        feature_dim: int,
+        channel_mixing: bool,
+        kernel_size: int,
+        *,
+        use_bias: bool = True,
+        key: PRNGKeyArray,
+        dtype: Any | None = None,
+        **conv1d_kwargs,
+    ):
+        if dtype is None:
+            dtype = default_floating_dtype()
+        self.groups = feature_dim
+        self.kernel_size = kernel_size
+        self.use_bias = use_bias
+        if channel_mixing:
+            self.groups = 1
+        if kernel_size == 0:
+            self.conv = None
+        else:
+            self.pad = (
+                kernel_size - 1
+            )  # padding of this size assures temporal causality.
+            self.conv = eqx.nn.Conv1d(
+                in_channels=feature_dim,
+                out_channels=feature_dim,
+                kernel_size=kernel_size,
+                padding=self.pad,
+                groups=self.groups,
+                use_bias=use_bias,
+                key=key,
+                **conv1d_kwargs,
+            )
+
+    def __call__(
+        self,
+        x: Array,
+        conv_state: Array | None = None,
+        return_last_state: bool = False,
+    ) -> Array | tuple[Array, Array]:
+        if conv_state is not None:
+            x = jnp.concat([conv_state, x], axis=0)
+
+        if self.kernel_size == 0:
+            return x
+        y = x.T
+        assert self.conv is not None
+        y = self.conv(y)  # (B,F,T+pad) tensor
+        if conv_state is not None:
+            y = y[:, conv_state.shape[0] :]
+
+        if return_last_state:
+            return y[:, : -self.pad].T, x[:, -self.pad :]
+        else:
+            return y[:, : -self.pad].T
+
+    def step(
+        self,
+        x: Array,
+        conv_state: tuple[Array] | None = None,
+    ) -> tuple[Array, tuple[Array] | None]:
+
+        if self.kernel_size == 0:
+            return x, conv_state
+
+        def _conv1d_step(
+            x: Array,
+            conv_state: Array,
+            conv1d_weight: Array,
+            conv1d_bias: Array | None = None,
+        ):
+            """
+            S: sequence length
+            D: feature dimension
+            KS: kernel size
+            Args:
+                x (Array): (S, D)
+                conv_state (Array): (KS, D)
+                conv1d_weight (Array): (KS, D)
+            """
+            seq_len, feat_dims = x.shape
+            assert feat_dims == conv_state.shape[1], (
+                f"x has feature dimension {feat_dims} but conv_state has feature dimension {conv_state.shape[1]}"
+            )
+            assert seq_len == 1, f"x has sequence length {seq_len} but it should be 1"
+            conv_state = jnp.roll(conv_state, shift=-1, axis=0)
+            conv_state = conv_state.at[-1:, :].set(x.squeeze(0))
+            y = jnp.sum(conv_state * conv1d_weight, axis=0, keepdims=True)
+            if conv1d_bias is not None:
+                y += conv1d_bias
+            return y, conv_state
+
+        S, D = x.shape
+
+        if conv_state is None:
+            assert self.conv is not None
+            conv_state = (
+                jnp.zeros(
+                    shape=(self.kernel_size, D),
+                    dtype=self.conv.weight.dtype,
+                ),
+            )
+
+        assert self.conv is not None
+        y, conv_state = _conv1d_step(
+            x,
+            conv_state[0],
+            self.conv.weight[:, 0, :].T,
+            conv1d_bias=self.conv.bias if self.use_bias else None,
+        )
+        return y, (conv_state,)

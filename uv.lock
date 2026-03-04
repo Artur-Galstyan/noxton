@@ -134,30 +134,30 @@ wheels = [
 
 [[package]]
 name = "boto3"
-version = "1.42.59"
+version = "1.42.60"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "botocore" },
     { name = "jmespath" },
     { name = "s3transfer" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b0/4e/499cb52aaee9468c346bcc1158965e24e72b4e2a20052725b680e0ac949b/boto3-1.42.59.tar.gz", hash = "sha256:6c4a14a4eb37b58a9048901bdeefbe1c529638b73e8f55413319a25f010ca211", size = 112725, upload-time = "2026-02-27T20:25:33.228Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/b8/e0/071e00265d3d8127b28c27ba3918ba283f49b39943864a389ac3f5096ef3/boto3-1.42.60.tar.gz", hash = "sha256:3d549d15c821dcc871a0821319049e7d493ae3317121eb01e4b1f5230c19d5d4", size = 112786, upload-time = "2026-03-03T21:21:07.199Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/17/c0/22d868b9408dc5a33935a72896ec8d638b2766c459668d1b37c3e5ac2066/boto3-1.42.59-py3-none-any.whl", hash = "sha256:7a66e3e8e2087ea4403e135e9de592e6d63fc9a91080d8dac415bb74df873a72", size = 140557, upload-time = "2026-02-27T20:25:31.774Z" },
+    { url = "https://files.pythonhosted.org/packages/ed/30/156ff2b5afb7dd03383b5f97d0e32535e9c0e783917380c476fe2fbc1874/boto3-1.42.60-py3-none-any.whl", hash = "sha256:c0cc3d93cd76c99461f6e109e04bb020defe3ffcd04c6163c72836dff5591614", size = 140554, upload-time = "2026-03-03T21:21:05.194Z" },
 ]
 
 [[package]]
 name = "botocore"
-version = "1.42.59"
+version = "1.42.60"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jmespath" },
     { name = "python-dateutil" },
     { name = "urllib3" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/45/ae/50fb33bdf1911c216d50f98d989dd032a506f054cf829ebd737c6fa7e3e6/botocore-1.42.59.tar.gz", hash = "sha256:5314f19e1da8fc0ebc41bdb8bbe17c9a7397d87f4d887076ac8bdef972a34138", size = 14950271, upload-time = "2026-02-27T20:25:20.614Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/82/d7/bfe8413cc7dc167e04ca9c68ea136251307960f662ec5889512615565b25/botocore-1.42.60.tar.gz", hash = "sha256:de9278810fb2e92a9ffe3dc8ffa68f1066e6d2caf19da9460760743b39ca5215", size = 14950855, upload-time = "2026-03-03T21:20:51.529Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/59/df/9d52819e0d804ead073d53ab1823bc0f0cb172a250fba31107b0b43fbb04/botocore-1.42.59-py3-none-any.whl", hash = "sha256:d2f2ff7ecc31e86ef46b5daee112cfbca052c13801285fb23af909f7bff5b657", size = 14619293, upload-time = "2026-02-27T20:25:17.455Z" },
+    { url = "https://files.pythonhosted.org/packages/8d/63/5cf970a00e9ddcbb9e65ecc79276717a9555a77d3d0571bd962676e19c3b/botocore-1.42.60-py3-none-any.whl", hash = "sha256:d8b4aab06cc134e21d294c068cb94e0eeb59bacd27c836fb6b882b61433df2f4", size = 14621726, upload-time = "2026-03-03T21:20:47.935Z" },
 ]
 
 [[package]]
@@ -403,7 +403,7 @@ wheels = [
 
 [[package]]
 name = "equinox"
-version = "0.13.4"
+version = "0.13.5"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "jax" },
@@ -411,9 +411,9 @@ dependencies = [
     { name = "typing-extensions" },
     { name = "wadler-lindig" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2d/80/1704c3375a9c3cae4713a1be12b59dbd8ddff03808862264be622b333cd1/equinox-0.13.4.tar.gz", hash = "sha256:d4eed5d7f981a5ddcb7bc70e601707769fb4da20f777703cc6e01a6248af9758", size = 140981, upload-time = "2026-01-26T22:29:19.417Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/84/7d/069b8f75ddb904c81b5bce15531f9be533200dd0af8ef50ec8fda2415a36/equinox-0.13.5.tar.gz", hash = "sha256:562c75a578f4e7f4687350d0240276c2e607a65692145659d05e78696c5760be", size = 141924, upload-time = "2026-03-04T12:20:03.046Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/96/4c/eea4860010ba31d6793038073c66f2e1755c80d0adb704c4926d549e724a/equinox-0.13.4-py3-none-any.whl", hash = "sha256:8203b6b84c1641a58aad07c040c171fc5a38e2c3bc90c5feb2f221d398354378", size = 181231, upload-time = "2026-01-26T22:29:17.859Z" },
+    { url = "https://files.pythonhosted.org/packages/17/0c/7f0a6f45be6ab752907db34db6267f717ae78f968cdde560f4694bb50e6d/equinox-0.13.5-py3-none-any.whl", hash = "sha256:447ea97ae706c4bcb47dd6b005cb551d5bc7de1a6ff5ae9c68f2f491ccde3699", size = 182058, upload-time = "2026-03-04T12:20:01.695Z" },
 ]
 
 [[package]]
@@ -1118,14 +1118,14 @@ dev = [
 
 [[package]]
 name = "numpix"
-version = "0.9.13"
+version = "0.9.14"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d5/89/baa0ad10886bab86c0d3e5f9f324ca564ca67e4eea5ca722a539058f3df7/numpix-0.9.13.tar.gz", hash = "sha256:8fb644a745a0438073ed684c85a406bab77806f29eecdea2488d9a10ad7e92b5", size = 14268, upload-time = "2026-03-03T20:43:17.863Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/3c/05/11d009688f8f1d8dfad4a78d63920d2ee1027b78be84e47c66b685a9a7f4/numpix-0.9.14.tar.gz", hash = "sha256:b58a564a05f5481b25c86ad648ec2b1727ae5a0368e75a70d188d7e03e63a452", size = 14552, upload-time = "2026-03-04T15:30:21.842Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e9/d3/e2db0d0c285b6b92fb92e8fd8addcf0a2d33087726884749c2cdc653a005/numpix-0.9.13-py3-none-any.whl", hash = "sha256:49ff3a0f1b2b3a0ec02438a72806d10e0c7b3612ced1f78ed78bf49fbff5ba01", size = 13074, upload-time = "2026-03-03T20:43:15.439Z" },
+    { url = "https://files.pythonhosted.org/packages/89/c2/339ae795c5c7c3d4886e86ab247a1966db41705e9603760961b3e540a4d1/numpix-0.9.14-py3-none-any.whl", hash = "sha256:3ed4b1bda7f0e5054388f426a7519fbcb6b3d2c34adea683e4ae10dd0f64d8a8", size = 13306, upload-time = "2026-03-04T15:30:20.688Z" },
 ]
 
 [[package]]
