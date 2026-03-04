@@ -127,8 +127,39 @@ class BatchedLinear(eqx.Module):
 
 
 class LinearHeadwiseExpand(eqx.Module):
-    """This is a structured projection layer that projects the input to a higher dimension.
-    It only allows integer up-projection factors, i.e. the output dimension is a multiple of the input dimension.
+    """Structured headwise projection that expands the feature dimension.
+
+    Splits the input along the feature axis into ``num_heads`` equal heads,
+    applies an independent linear projection to each head, then concatenates
+    the results.  The weight tensor has shape
+    ``(num_heads, out_features_per_head, in_features_per_head)`` and is
+    initialised with a scaled normal distribution
+    (``std = sqrt(2 / (5 * in_features_per_head))``).
+
+    Only integer expansion factors are supported: ``out_features`` must be
+    divisible by ``num_heads``, and ``in_features`` must be divisible by
+    ``num_heads``.
+
+    Args:
+        in_features: Total size of the input feature dimension.  Must be
+            divisible by ``num_heads``.
+        num_heads: Number of independent projection heads.
+        out_features: Total size of the output feature dimension.  Must be
+            divisible by ``num_heads``.
+        use_bias: If ``True``, add a single learnable bias of shape
+            ``(out_features,)`` initialised to zero.  Defaults to ``True``.
+        key: JAX PRNG key for weight initialisation.
+        dtype: Parameter dtype.  Defaults to the project default when ``None``.
+
+    Example:
+        >>> import jax
+        >>> import jax.numpy as jnp
+        >>> from noxton.nn import LinearHeadwiseExpand
+        >>> key = jax.random.PRNGKey(0)
+        >>> layer = LinearHeadwiseExpand(in_features=64, num_heads=4, out_features=256, key=key)
+        >>> x = jax.random.normal(key, (32, 64))  # (time, features)
+        >>> layer(x).shape
+        (32, 256)
     """
 
     weight: Array
@@ -164,6 +195,16 @@ class LinearHeadwiseExpand(eqx.Module):
             self.bias = None
 
     def __call__(self, x: Array) -> Array:
+        """Apply the headwise projection to ``x``.
+
+        Args:
+            x: Input array whose last dimension must equal ``in_features``.
+                Leading dimensions are treated as batch dimensions.
+
+        Returns:
+            Array of the same shape as ``x`` except the last dimension is
+            ``out_features``.
+        """
         shape = x.shape
         x = x.reshape(*shape[:-1], self.num_heads, -1)
         x = jnp.einsum("...hd,hod->...ho", x, self.weight)

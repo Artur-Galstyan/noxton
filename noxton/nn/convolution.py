@@ -172,18 +172,39 @@ class ConvNormActivation(StatefulLayer):
 
 
 class CausalConv1d(eqx.Module):
-    """
-    Implements causal depthwise convolution of a time series tensor.
-    Input:  Tensor of shape (T,F), i.e. (time, feature)
-    Output: Tensor of shape (T,F)
+    """Causal 1-D convolution over time-series tensors.
+
+    Applies a Conv1d with left-only padding so each output timestep depends
+    only on current and past inputs (no future leakage).  Supports both a
+    parallel forward pass over a full sequence and an efficient single-step
+    ``step`` method for autoregressive inference.
+
+    Setting ``kernel_size=0`` creates an identity layer that returns the input
+    unchanged without allocating any parameters.
 
     Args:
-        feature_dim: number of features in the input tensor
-        kernel_size: size of the kernel for the depthwise convolution
-        causal_conv_bias: whether to use bias in the depthwise convolution
-        channel_mixing: whether to use channel mixing (i.e. groups=1) or not (i.e. groups=feature_dim)
-                        If True, it mixes the convolved features across channels.
-                        If False, all the features are convolved independently.
+        feature_dim: Number of features (channels) in the input tensor.
+        channel_mixing: If ``True``, use a single group (``groups=1``) so
+            features are mixed across channels.  If ``False``, use depthwise
+            convolution (``groups=feature_dim``) so each feature is convolved
+            independently.
+        kernel_size: Convolution kernel size.  Set to ``0`` to skip the
+            convolution entirely (identity pass-through).
+        use_bias: Whether to add a learnable bias term.  Defaults to ``True``.
+        key: JAX PRNG key for parameter initialisation.
+        dtype: Parameter dtype.  Defaults to the project default when ``None``.
+        **conv1d_kwargs: Additional keyword arguments forwarded to
+            ``eqx.nn.Conv1d``.
+
+    Example:
+        >>> import jax
+        >>> import jax.numpy as jnp
+        >>> from noxton.nn import CausalConv1d
+        >>> key = jax.random.PRNGKey(0)
+        >>> layer = CausalConv1d(feature_dim=16, channel_mixing=False, kernel_size=4, key=key)
+        >>> x = jax.random.normal(key, (32, 16))  # (time, features)
+        >>> layer(x).shape
+        (32, 16)
     """
 
     groups: int
@@ -232,6 +253,28 @@ class CausalConv1d(eqx.Module):
         conv_state: Array | None = None,
         return_last_state: bool = False,
     ) -> Array | tuple[Array, Array]:
+        """Apply causal convolution to a full input sequence.
+
+        Processes the entire sequence in parallel.  Optionally prepends cached
+        context from a previous chunk (``conv_state``) to support chunked /
+        streaming inference without recomputing past activations.
+
+        Args:
+            x: Input tensor of shape ``(T, F)`` — time first, features last.
+            conv_state: Optional cached context of shape ``(S, F)`` from a
+                previous chunk, prepended to ``x`` before convolution.  When
+                provided, the output is trimmed back to length ``T``.
+            return_last_state: If ``True``, also return the last
+                ``kernel_size - 1`` timesteps of the (possibly prepended)
+                input as the new ``conv_state`` for the next chunk.
+
+        Returns:
+            - If ``return_last_state`` is ``False``: output array of shape
+              ``(T, F)``.
+            - If ``return_last_state`` is ``True``: a ``(output, new_state)``
+              tuple where ``output`` is ``(T, F)`` and ``new_state`` is
+              ``(kernel_size - 1, F)``.
+        """
         if conv_state is not None:
             x = jnp.concat([conv_state, x], axis=0)
 
@@ -253,7 +296,25 @@ class CausalConv1d(eqx.Module):
         x: Array,
         conv_state: tuple[Array] | None = None,
     ) -> tuple[Array, tuple[Array] | None]:
+        """Apply causal convolution to a single timestep (autoregressive mode).
 
+        Maintains a sliding-window buffer of the last ``kernel_size``
+        timesteps.  Efficient for token-by-token generation where re-running
+        the full sequence each step would be prohibitive.
+
+        Args:
+            x: Input tensor of shape ``(1, F)`` — exactly one timestep.
+            conv_state: Tuple containing one array of shape
+                ``(kernel_size, F)`` — the sliding-window buffer from the
+                previous step.  When ``None``, the buffer is zero-initialised
+                automatically.
+
+        Returns:
+            A ``(output, new_conv_state)`` tuple where ``output`` is shape
+            ``(1, F)`` and ``new_conv_state`` is a tuple containing the
+            updated buffer of shape ``(kernel_size, F)``.  Returns the
+            original ``conv_state`` unchanged when ``kernel_size == 0``.
+        """
         if self.kernel_size == 0:
             return x, conv_state
 
