@@ -11,6 +11,9 @@ dependencies = [
     "numpix>=0.9.10",
     "statedict2pytree>=2.0.2",
 ]
+[tool.setuptools.packages.find]
+include = ["noxton*"]
+
 
 [project.optional-dependencies]
 esm = [
