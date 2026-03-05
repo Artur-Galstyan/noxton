@@ -229,6 +229,7 @@ class CausalConv1d(eqx.Module):
         self.groups = feature_dim
         self.kernel_size = kernel_size
         self.use_bias = use_bias
+        self.pad = 0
         if channel_mixing:
             self.groups = 1
         if kernel_size == 0:
@@ -296,7 +297,7 @@ class CausalConv1d(eqx.Module):
         self,
         x: Array,
         conv_state: tuple[Array] | None = None,
-    ) -> tuple[Array, tuple[Array] | None]:
+    ) -> tuple[Array, tuple[Array]]:
         """Apply causal convolution to a single timestep (autoregressive mode).
 
         Maintains a sliding-window buffer of the last ``kernel_size``
@@ -316,6 +317,9 @@ class CausalConv1d(eqx.Module):
             updated buffer of shape ``(kernel_size, F)``.  Returns the
             original ``conv_state`` unchanged when ``kernel_size == 0``.
         """
+        if conv_state is None:
+            conv_state = self.init_state()
+
         if self.kernel_size == 0:
             return x, conv_state
 
@@ -324,45 +328,28 @@ class CausalConv1d(eqx.Module):
             conv_state: Array,
             conv1d_weight: Array,
             conv1d_bias: Array | None = None,
-        ):
-            """
-            S: sequence length
-            D: feature dimension
-            KS: kernel size
-            Args:
-                x (Array): (S, D)
-                conv_state (Array): (KS, D)
-                conv1d_weight (Array): (KS, D)
-            """
+        ) -> tuple[Array, Array]:
             seq_len, feat_dims = x.shape
-            assert feat_dims == conv_state.shape[1], (
-                f"x has feature dimension {feat_dims} but conv_state has feature dimension {conv_state.shape[1]}"
-            )
-            assert seq_len == 1, f"x has sequence length {seq_len} but it should be 1"
+            assert feat_dims == conv_state.shape[1]
+            assert seq_len == 1
             conv_state = jnp.roll(conv_state, shift=-1, axis=0)
             conv_state = conv_state.at[-1:, :].set(x.squeeze(0))
             y = jnp.sum(conv_state * conv1d_weight, axis=0, keepdims=True)
             if conv1d_bias is not None:
                 y += conv1d_bias.squeeze()
-
             return y, conv_state
 
-        S, D = x.shape
-
-        if conv_state is None:
-            assert self.conv is not None
-            conv_state = (
-                jnp.zeros(
-                    shape=(self.kernel_size, D),
-                    dtype=self.conv.weight.dtype,
-                ),
-            )
-
         assert self.conv is not None
-        y, conv_state = _conv1d_step(
+        y, new_conv_state = _conv1d_step(
             x,
             conv_state[0],
             self.conv.weight[:, 0, :].T,
             conv1d_bias=self.conv.bias if self.use_bias else None,
         )
-        return y, (conv_state,)
+        return y, (new_conv_state,)
+
+    def init_state(self) -> tuple[Array]:
+        if self.conv is None:
+            return (jnp.zeros((1, 1)),)
+        D = self.conv.weight.shape[0]
+        return (jnp.zeros((self.kernel_size, D), dtype=self.conv.weight.dtype),)

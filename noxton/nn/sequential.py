@@ -1,4 +1,5 @@
 import math
+from collections.abc import Callable
 
 import equinox as eqx
 import jax
@@ -211,4 +212,59 @@ class LinearHeadwiseExpand(eqx.Module):
         x = x.reshape(*shape[:-1], -1)
         if self.bias is not None:
             x = x + self.bias
+        return x
+
+
+class GatedFeedForward(eqx.Module):
+    proj_up: eqx.nn.Linear
+    proj_down: eqx.nn.Linear
+    act_fn: Callable
+    dropout: eqx.nn.Dropout
+    inference: bool
+    proj_up_dim: int
+
+    def __init__(
+        self,
+        embedding_dim: int,
+        proj_up_dim: int,
+        use_bias: bool = False,
+        act_fn: Callable = jax.nn.gelu,
+        dropout_p: float = 0.0,
+        *,
+        key: PRNGKeyArray,
+        inference: bool = False,
+        dtype: Any | None = None,
+    ):
+        self.proj_up_dim = proj_up_dim
+        self.act_fn = act_fn
+        self.inference = inference
+
+        key, upkey, downkey = jax.random.split(key, 3)
+        self.proj_up = eqx.nn.Linear(
+            in_features=embedding_dim,
+            out_features=2 * proj_up_dim,
+            use_bias=use_bias,
+            key=upkey,
+            dtype=dtype,
+        )
+        self.proj_down = eqx.nn.Linear(
+            in_features=proj_up_dim,
+            out_features=embedding_dim,
+            use_bias=use_bias,
+            key=downkey,
+            dtype=dtype,
+        )
+        self.dropout = eqx.nn.Dropout(dropout_p)
+
+    def __call__(
+        self,
+        x: Float[Array, "seq_len embed_dim"],
+        *,
+        key: PRNGKeyArray | None = None,
+    ) -> Array:
+        x = eqx.filter_vmap(self.proj_up)(x)
+        gate_preact, up_proj = jnp.split(x, [self.proj_up_dim], axis=-1)
+        x = self.act_fn(gate_preact) * up_proj
+        x = eqx.filter_vmap(self.proj_down)(x)
+        x = self.dropout(x, key=key, inference=self.inference)
         return x

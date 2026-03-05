@@ -10,7 +10,7 @@ from .normalization import (
     ResidualLayerNorm,
 )
 from .regularization import StochasticDepth
-from .sequential import BatchedLinear, LinearHeadwiseExpand
+from .sequential import BatchedLinear, GatedFeedForward, LinearHeadwiseExpand
 from .state_space import SelectiveStateSpace
 from .transformer import (
     Transformer,
@@ -20,7 +20,7 @@ from .transformer import (
     TransformerEncoderLayer,
     VisionTransformer,
 )
-from .xlstm import mLSTMCell, mLSTMLayer
+from .xlstm import mLSTMCell, mLSTMLayer, sLSTMCell, sLSTMLayer, xLSTMBlock
 
 __all__ = [
     "AbstractNorm",
@@ -48,6 +48,10 @@ __all__ = [
     "MambaBlock",
     "mLSTMCell",
     "mLSTMLayer",
+    "sLSTMLayer",
+    "sLSTMCell",
     "LinearHeadwiseExpand",
     "CausalConv1d",
+    "GatedFeedForward",
+    "xLSTMBlock",
 ]
