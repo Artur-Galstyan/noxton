@@ -383,6 +383,7 @@ class mLSTMLayer(eqx.Module):
         x_mlstm, z = jnp.split(x_inner, [self.inner_embedding_dim], axis=-1)
 
         x_mlstm_conv, conv_state = self.conv1d.step(x_mlstm, conv_state=conv_state)
+        print(f"{x_mlstm_conv.shape=}")
         x_mlstm_conv_act = jax.nn.silu(x_mlstm_conv)
 
         q = self.q_proj(x_mlstm_conv_act)

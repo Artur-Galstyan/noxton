@@ -343,7 +343,8 @@ class CausalConv1d(eqx.Module):
             conv_state = conv_state.at[-1:, :].set(x.squeeze(0))
             y = jnp.sum(conv_state * conv1d_weight, axis=0, keepdims=True)
             if conv1d_bias is not None:
-                y += conv1d_bias
+                y += conv1d_bias.squeeze()
+
             return y, conv_state
 
         S, D = x.shape
