@@ -1,34 +1,28 @@
-import equinox as eqx
 import jax
 import jax.numpy as jnp
 
-from noxton.nn import mLSTMCell
+from noxton.nn import mLSTMLayer
 
-max_seq_len = 4
 embed_dim = 16
+inner_embed_dim = 32
 num_heads = 8
 seq_len = 4
+qkv_proj_blocksize = 4
 
-
-cell = mLSTMCell(embed_dim, num_heads, key=jax.random.key(22), max_seq_len=4)
-
-q, k, v = (
-    jnp.ones(shape=(seq_len, embed_dim)),
-    jnp.ones(shape=(seq_len, embed_dim)),
-    jnp.ones(shape=(seq_len, embed_dim)),
+layer = mLSTMLayer(
+    embedding_dim=embed_dim,
+    inner_embedding_dim=inner_embed_dim,
+    qkv_proj_blocksize=qkv_proj_blocksize,
+    use_bias=False,
+    conv1d_kernel_size=4,
+    max_seq_len=seq_len,
+    num_heads=num_heads,
+    dropout_p=0.0,
+    key=jax.random.key(42),
 )
 
+x = jnp.ones(shape=(seq_len, embed_dim))
+key = jax.random.key(0)
 
-cell(q, k, v)
-
-
-q, k, v = (
-    jnp.ones(shape=(1, embed_dim)),
-    jnp.ones(shape=(1, embed_dim)),
-    jnp.ones(shape=(1, embed_dim)),
-)
-
-step_fn_jit = eqx.filter_jit(cell.step)
-step_fn_jit(q, k, v)
-step_fn_jit(q, k, v)
-step_fn_jit(q, k, v)
+y = layer(x, key=key)
+print(f"forward: {y.shape=}")

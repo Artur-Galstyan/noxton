@@ -20,7 +20,7 @@ from .transformer import (
     TransformerEncoderLayer,
     VisionTransformer,
 )
-from .xlstm import mLSTMCell
+from .xlstm import mLSTMCell, mLSTMLayer
 
 __all__ = [
     "AbstractNorm",
@@ -47,6 +47,7 @@ __all__ = [
     "SelectiveStateSpaceModel",
     "MambaBlock",
     "mLSTMCell",
+    "mLSTMLayer",
     "LinearHeadwiseExpand",
     "CausalConv1d",
 ]

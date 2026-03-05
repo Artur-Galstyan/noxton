@@ -254,6 +254,10 @@ class mLSTMLayer(eqx.Module):
     proj_down: eqx.nn.Linear
     dropout: eqx.nn.Dropout
 
+    inference: bool
+
+    inner_embedding_dim: int
+
     def __init__(
         self,
         embedding_dim: int,
@@ -266,6 +270,7 @@ class mLSTMLayer(eqx.Module):
         dropout_p: float,
         *,
         key: PRNGKeyArray,
+        inference: bool = False,
         dtype: Any | None = None,
     ):
         key, proj_key = jax.random.split(key)
@@ -335,6 +340,36 @@ class mLSTMLayer(eqx.Module):
             dtype=dtype,
         )
         self.dropout = eqx.nn.Dropout(dropout_p)
+        self.inference = inference
+
+        self.inner_embedding_dim = inner_embedding_dim
+
+    def __call__(self, x: Float[Array, "seq_len embed_dim"], key: PRNGKeyArray | None):
+        S, _ = x.shape
+
+        # up-projection
+        x_inner = eqx.filter_vmap(self.proj_up)(x)
+        x_mlstm, z = jnp.split(x_inner, [self.inner_embedding_dim], axis=-1)
+
+        # mlstm branch
+        x_mlstm_conv = self.conv1d(x_mlstm)
+        assert isinstance(x_mlstm_conv, Array)
+        x_mlstm_conv_act = jax.nn.silu(x_mlstm_conv)
+
+        q = self.q_proj(x_mlstm_conv_act)
+        k = self.k_proj(x_mlstm_conv_act)
+        v = self.v_proj(x_mlstm)
+
+        h_tilde_state = self.mlstm_cell(q=q, k=k, v=v)
+
+        h_tilde_state_skip = h_tilde_state + (self.learnable_skip * x_mlstm_conv_act)
+
+        # output / z branch
+        h_state = h_tilde_state_skip * jax.nn.silu(z)
+
+        # down-projection
+        y = self.dropout(eqx.filter_vmap(self.proj_down)(h_state), key=key)
+        return y
 
 
 class sLSTMCell(eqx.Module):

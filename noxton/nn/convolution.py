@@ -211,6 +211,7 @@ class CausalConv1d(eqx.Module):
     kernel_size: int
     conv: eqx.nn.Conv1d | None
     use_bias: bool
+    pad: int
 
     def __init__(
         self,
