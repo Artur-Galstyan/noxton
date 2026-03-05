@@ -371,6 +371,36 @@ class mLSTMLayer(eqx.Module):
         y = self.dropout(eqx.filter_vmap(self.proj_down)(h_state), key=key)
         return y
 
+    def step(
+        self,
+        x: Float[Array, "1 embed_dim"],
+        mlstm_state: tuple[Array, Array, Array] | None = None,
+        conv_state: tuple[Array] | None = None,
+        *,
+        key: PRNGKeyArray | None = None,
+    ) -> tuple[Array, tuple[tuple[Array, Array, Array], tuple[Array] | None]]:
+        x_inner = eqx.filter_vmap(self.proj_up)(x)
+        x_mlstm, z = jnp.split(x_inner, [self.inner_embedding_dim], axis=-1)
+
+        x_mlstm_conv, conv_state = self.conv1d.step(x_mlstm, conv_state=conv_state)
+        x_mlstm_conv_act = jax.nn.silu(x_mlstm_conv)
+
+        q = self.q_proj(x_mlstm_conv_act)
+        k = self.k_proj(x_mlstm_conv_act)
+        v = self.v_proj(x_mlstm)
+
+        h_tilde_state, mlstm_state = self.mlstm_cell.step(
+            q=q, k=k, v=v, mlstm_state=mlstm_state
+        )
+        h_tilde_state_skip = h_tilde_state + (self.learnable_skip * x_mlstm_conv_act)
+
+        h_state = h_tilde_state_skip * jax.nn.silu(z)
+
+        y = eqx.filter_vmap(self.proj_down)(h_state)
+        y = self.dropout(y, key=key, inference=self.inference)
+
+        return y, (mlstm_state, conv_state)
+
 
 class sLSTMCell(eqx.Module):
     pass

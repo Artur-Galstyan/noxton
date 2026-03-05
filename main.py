@@ -23,6 +23,15 @@ layer = mLSTMLayer(
 
 x = jnp.ones(shape=(seq_len, embed_dim))
 key = jax.random.key(0)
-
 y = layer(x, key=key)
 print(f"forward: {y.shape=}")
+
+x_step = jnp.ones(shape=(1, embed_dim))
+mlstm_state = None
+conv_state = None
+
+for i in range(3):
+    y_step, (mlstm_state, conv_state) = layer.step(
+        x_step, mlstm_state=mlstm_state, conv_state=conv_state, key=key
+    )
+    print(f"step {i}: {y_step.shape=}")
