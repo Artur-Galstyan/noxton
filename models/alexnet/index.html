@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>AlexNet - Noxton</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "AlexNet";
+        var mkdocs_page_input_path = "models/alexnet.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Noxton
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../getting-started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">NN Layers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/attention/">Attention</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/normalization/">Normalization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/convolution/">Convolution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/embedding/">Embedding</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/regularization/">Regularization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/linear/">Linear</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/mamba/">State Space (Mamba)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/transformer/">Transformer</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Models</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">AlexNet</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#constructor">Constructor</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#from_pretrained">from_pretrained</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#__call__">__call__</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example">Example</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../resnet/">ResNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../convnext/">ConvNeXt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../efficientnet/">EfficientNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../swin-transformer/">Swin Transformer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../clip/">CLIP</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../esm/">ESM</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../examples/">Examples</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Noxton</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Models</li>
+      <li class="breadcrumb-item active">AlexNet</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="alexnet">AlexNet<a class="headerlink" href="#alexnet" title="Permanent link">&para;</a></h1>
+<pre><code class="language-python">from noxton.models import AlexNet
+</code></pre>
+<p>AlexNet is the landmark 8-layer CNN that won ImageNet 2012 (Krizhevsky et al., 2012). The architecture is:</p>
+<pre><code>Conv(11×11, s=4) → ReLU → MaxPool
+Conv(5×5)        → ReLU → MaxPool
+Conv(3×3)        → ReLU
+Conv(3×3)        → ReLU
+Conv(3×3)        → ReLU → MaxPool
+AdaptiveAvgPool(6×6)
+Dropout → Linear(9216, 4096) → ReLU
+Dropout → Linear(4096, 4096) → ReLU
+Linear(4096, n_classes)
+</code></pre>
+<p>Local Response Normalisation (LRN) is applied after the first and second pooling layers.</p>
+<hr />
+<h2 id="constructor">Constructor<a class="headerlink" href="#constructor" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">AlexNet(
+    *,
+    n_classes: int,
+    key: PRNGKeyArray,
+    inference: bool = False,
+    dtype = None,
+)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>n_classes</code></td>
+<td>Number of output classes. Use <code>1000</code> for ImageNet.</td>
+</tr>
+<tr>
+<td><code>key</code></td>
+<td>JAX PRNG key for parameter initialisation.</td>
+</tr>
+<tr>
+<td><code>inference</code></td>
+<td>Disable dropout. Default <code>False</code>.</td>
+</tr>
+<tr>
+<td><code>dtype</code></td>
+<td>Parameter dtype. Default: project default (<code>float32</code>).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="from_pretrained"><code>from_pretrained</code><a class="headerlink" href="#from_pretrained" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">AlexNet.from_pretrained(
+    weights: str = &quot;alexnet_IMAGENET1K_V1&quot;,
+    key: PRNGKeyArray = ...,
+    dtype = None,
+) -&gt; tuple[AlexNet, eqx.nn.State]
+</code></pre>
+<table>
+<thead>
+<tr>
+<th><code>weights</code></th>
+<th>Dataset</th>
+<th>Top-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>alexnet_IMAGENET1K_V1</code></td>
+<td>ImageNet-1K</td>
+<td>56.5%</td>
+</tr>
+</tbody>
+</table>
+<p>Weights are downloaded from PyTorch Hub and cached at <code>~/.noxton/</code>.</p>
+<hr />
+<h2 id="__call__"><code>__call__</code><a class="headerlink" href="#__call__" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">model(
+    x: Array,                # (3, H, W) — single image, no batch dim
+    state: eqx.nn.State,
+    key: PRNGKeyArray | None = None,
+) -&gt; tuple[Array, eqx.nn.State]   # (n_classes,), state
+</code></pre>
+<hr />
+<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">import os
+import jax
+import jax.numpy as jnp
+import equinox as eqx
+from PIL import Image
+from torchvision import transforms
+from noxton.models import AlexNet
+
+# Load pretrained model
+model, state = AlexNet.from_pretrained(
+    weights=&quot;alexnet_IMAGENET1K_V1&quot;,
+    key=jax.random.key(0),
+    dtype=jnp.float32,
+)
+model, state = eqx.nn.inference_mode((model, state))
+
+# Preprocess
+preprocess = transforms.Compose([
+    transforms.Resize(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225]),
+])
+image = Image.open(&quot;cat.jpg&quot;)
+x = jnp.array(preprocess(image).unsqueeze(0).numpy())   # (1, 3, 224, 224)
+
+# Batch inference
+logits, _ = eqx.filter_vmap(
+    model, in_axes=(0, None), out_axes=(0, None), axis_name=&quot;batch&quot;
+)(x, state)
+
+probs = jax.nn.softmax(logits[0])
+top5 = jnp.argsort(probs)[-5:][::-1]
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../../nn/transformer/" class="btn btn-neutral float-left" title="Transformer"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../resnet/" class="btn btn-neutral float-right" title="ResNet">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../../nn/transformer/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../resnet/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

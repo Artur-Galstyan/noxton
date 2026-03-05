@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Linear - Noxton</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Linear";
+        var mkdocs_page_input_path = "nn/linear.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Noxton
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../getting-started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">NN Layers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../attention/">Attention</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../normalization/">Normalization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../convolution/">Convolution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../embedding/">Embedding</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../regularization/">Regularization</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Linear</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#batchedlinear">BatchedLinear</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#constructor">Constructor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#__call__">__call__</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mamba/">State Space (Mamba)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../transformer/">Transformer</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Models</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/alexnet/">AlexNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/resnet/">ResNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/convnext/">ConvNeXt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/efficientnet/">EfficientNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/swin-transformer/">Swin Transformer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/clip/">CLIP</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/esm/">ESM</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../examples/">Examples</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Noxton</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">NN Layers</li>
+      <li class="breadcrumb-item active">Linear</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="linear">Linear<a class="headerlink" href="#linear" title="Permanent link">&para;</a></h1>
+<pre><code class="language-python">from noxton.nn import BatchedLinear
+</code></pre>
+<hr />
+<h2 id="batchedlinear">BatchedLinear<a class="headerlink" href="#batchedlinear" title="Permanent link">&para;</a></h2>
+<p>Linear layer that natively handles arbitrarily-batched inputs without requiring an explicit outer <code>vmap</code>. Accepts inputs with any number of leading batch dimensions and reshapes internally. Supports both real and complex dtypes.</p>
+<p>Weights and biases are initialised with a uniform distribution in <code>[-1/√in_features, 1/√in_features]</code>.</p>
+<h3 id="constructor">Constructor<a class="headerlink" href="#constructor" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">BatchedLinear(
+    in_features: int | Literal[&quot;scalar&quot;],
+    out_features: int | Literal[&quot;scalar&quot;],
+    use_bias: bool = True,
+    dtype = None,
+    *,
+    key: PRNGKeyArray,
+)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>in_features</code></td>
+<td>Size of the last input dimension, or <code>"scalar"</code>.</td>
+</tr>
+<tr>
+<td><code>out_features</code></td>
+<td>Size of the last output dimension, or <code>"scalar"</code>.</td>
+</tr>
+<tr>
+<td><code>use_bias</code></td>
+<td>Add a learnable bias vector. Default <code>True</code>.</td>
+</tr>
+<tr>
+<td><code>dtype</code></td>
+<td>Parameter dtype. Supports complex dtypes. Default: project default.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="__call__"><code>__call__</code><a class="headerlink" href="#__call__" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">linear(
+    x: Array,       # (*batch_dims, in_features)
+    key = None,
+) -&gt; Array          # (*batch_dims, out_features)
+</code></pre>
+<h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import jax
+import jax.numpy as jnp
+from noxton.nn import BatchedLinear
+
+key = jax.random.PRNGKey(0)
+linear = BatchedLinear(in_features=8, out_features=4, key=key)
+
+# Arbitrary batch dimensions
+x = jax.random.normal(key, (3, 5, 8))
+out = linear(x)
+# out.shape -&gt; (3, 5, 4)
+
+# Works on plain 1-D vectors too
+out1d = linear(jnp.ones(8))
+# out1d.shape -&gt; (4,)
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../regularization/" class="btn btn-neutral float-left" title="Regularization"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../mamba/" class="btn btn-neutral float-right" title="State Space (Mamba)">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../regularization/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../mamba/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

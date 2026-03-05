@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Examples - Noxton</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Examples";
+        var mkdocs_page_input_path = "examples.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Noxton
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../getting-started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">NN Layers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../nn/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../nn/attention/">Attention</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../nn/normalization/">Normalization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../nn/convolution/">Convolution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../nn/embedding/">Embedding</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../nn/regularization/">Regularization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../nn/linear/">Linear</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../nn/mamba/">State Space (Mamba)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../nn/transformer/">Transformer</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Models</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../models/alexnet/">AlexNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../models/resnet/">ResNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../models/convnext/">ConvNeXt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../models/efficientnet/">EfficientNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../models/swin-transformer/">Swin Transformer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../models/clip/">CLIP</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../models/esm/">ESM</a>
+                  </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Examples</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#resnet-inference">ResNet inference</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#clip-zero-shot-classification">CLIP zero-shot classification</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#efficientnet-inference">EfficientNet inference</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#swin-transformer-inference">Swin Transformer inference</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Noxton</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Examples</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h1>
+<p>All example scripts are in the <a href="https://github.com/arturgalstyan/noxton/tree/main/examples"><code>examples/</code></a> directory. Each script loads a pretrained model, preprocesses <code>cat.jpg</code>, runs inference, and prints top-5 ImageNet predictions.</p>
+<hr />
+<h2 id="resnet-inference">ResNet inference<a class="headerlink" href="#resnet-inference" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">import os
+import jax
+import jax.numpy as jnp
+import equinox as eqx
+import requests
+from PIL import Image
+from torchvision import transforms
+from noxton.models import ResNet
+
+
+def get_imagenet_labels():
+    url = &quot;https://raw.githubusercontent.com/pytorch/hub/master/imagenet_classes.txt&quot;
+    response = requests.get(url)
+    return [line.strip() for line in response.text.splitlines()]
+
+
+def preprocess_image(image_path):
+    preprocess = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225]),
+    ])
+    image = Image.open(image_path)
+    return jnp.array(preprocess(image).unsqueeze(0).numpy())
+
+
+# Load model
+model, state = ResNet.from_pretrained(
+    model=&quot;resnet50&quot;,
+    weights=&quot;resnet50_IMAGENET1K_V2&quot;,
+    key=jax.random.key(0),
+    dtype=jnp.float16,
+)
+model, state = eqx.nn.inference_mode((model, state))
+
+# Preprocess and run
+x = preprocess_image(&quot;examples/cat.jpg&quot;).astype(jnp.float16)
+logits, _ = eqx.filter_vmap(
+    model, in_axes=(0, None), out_axes=(0, None), axis_name=&quot;batch&quot;
+)(x, state)
+
+probs = jax.nn.softmax(logits[0])
+labels = get_imagenet_labels()
+top5 = jnp.argsort(probs)[-5:][::-1]
+for i, idx in enumerate(top5):
+    print(f&quot;{i+1}. {labels[int(idx)]}: {float(probs[idx]):.4f}&quot;)
+</code></pre>
+<hr />
+<h2 id="clip-zero-shot-classification">CLIP zero-shot classification<a class="headerlink" href="#clip-zero-shot-classification" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">import jax
+import jax.numpy as jnp
+import numpy as np
+import equinox as eqx
+from PIL import Image
+from noxton.models import CLIP
+from noxton.models.clip import clip_tokenize
+
+
+def preprocess_image(path, n_px=224):
+    img = Image.open(path).convert(&quot;RGB&quot;).resize((n_px, n_px), Image.BICUBIC)
+    x = jnp.array(np.array(img), dtype=jnp.float32) / 255.0
+    x = jnp.transpose(x, (2, 0, 1))  # HWC -&gt; CHW
+    mean = jnp.array([0.48145466, 0.4578275,  0.40821073]).reshape(3, 1, 1)
+    std  = jnp.array([0.26862954, 0.26130258, 0.27577711]).reshape(3, 1, 1)
+    return ((x - mean) / std).astype(jnp.float16)
+
+
+image  = preprocess_image(&quot;examples/cat.jpg&quot;)
+text   = clip_tokenize([&quot;a photo of a human&quot;, &quot;a photo of a cat&quot;, &quot;a photo of a dog&quot;])
+
+clip, state = CLIP.from_pretrained(model=&quot;ViT-B/32&quot;, dtype=jnp.float16)
+clip, state = eqx.nn.inference_mode((clip, state))
+
+logits_per_image, _, state = eqx.filter_vmap(
+    clip,
+    in_axes=(None, 0, None),
+    out_axes=(0, 0, None),
+    axis_name=&quot;batch&quot;,
+)(image, text, state)
+
+probs = jax.nn.softmax(logits_per_image)
+for label, p in zip([&quot;human&quot;, &quot;cat&quot;, &quot;dog&quot;], probs):
+    print(f&quot;{label}: {p * 100:.1f}%&quot;)
+</code></pre>
+<hr />
+<h2 id="efficientnet-inference">EfficientNet inference<a class="headerlink" href="#efficientnet-inference" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">import functools
+import jax
+import jax.numpy as jnp
+import equinox as eqx
+import torchvision.transforms as transforms
+from PIL import Image
+from torchvision.models import EfficientNet_B0_Weights
+from noxton.models import EfficientNet
+
+
+model, state = EfficientNet.from_pretrained(
+    &quot;efficientnet_b0&quot;,
+    weights=&quot;efficientnet_b0_IMAGENET1K_V1&quot;,
+    dtype=jnp.float16,
+)
+model, state = eqx.nn.inference_mode((model, state))
+
+preprocess = transforms.Compose([
+    transforms.Resize(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225]),
+])
+img = Image.open(&quot;examples/cat.jpg&quot;)
+x = jnp.array(preprocess(img).unsqueeze(0).numpy(), dtype=jnp.float16)
+
+key = jax.random.key(0)
+model_fn = functools.partial(model, key=key)
+logits, _ = eqx.filter_vmap(
+    model_fn, in_axes=(0, None), out_axes=(0, None), axis_name=&quot;batch&quot;
+)(x, state)
+
+categories = EfficientNet_B0_Weights.IMAGENET1K_V1.meta[&quot;categories&quot;]
+probs = jax.nn.softmax(logits[0])
+_, top5 = jax.lax.top_k(probs, 5)
+for i, idx in enumerate(top5):
+    print(f&quot;{i+1}. {categories[idx]} ({probs[idx] * 100:.2f}%)&quot;)
+</code></pre>
+<hr />
+<h2 id="swin-transformer-inference">Swin Transformer inference<a class="headerlink" href="#swin-transformer-inference" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">import jax
+import jax.numpy as jnp
+import equinox as eqx
+from torchvision import transforms
+from PIL import Image
+from noxton.models import SwinTransformer
+
+# V1 uses 224px input
+preprocess_v1 = transforms.Compose([
+    transforms.Resize(232),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225]),
+])
+
+# V2 uses 256px input
+preprocess_v2 = transforms.Compose([
+    transforms.Resize(260),
+    transforms.CenterCrop(256),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225]),
+])
+
+for model_name, weights, preprocess in [
+    (&quot;swin_t&quot;,    &quot;swin_t_IMAGENET1K_V1&quot;,    preprocess_v1),
+    (&quot;swin_v2_t&quot;, &quot;swin_v2_t_IMAGENET1K_V1&quot;, preprocess_v2),
+]:
+    model, state = SwinTransformer.from_pretrained(
+        model=model_name, weights=weights,
+        key=jax.random.key(0), dtype=jnp.float32,
+    )
+    model, state = eqx.nn.inference_mode((model, state))
+
+    img = Image.open(&quot;examples/cat.jpg&quot;)
+    x = jnp.array(preprocess(img).unsqueeze(0).numpy())
+
+    logits, _ = eqx.filter_vmap(
+        model, in_axes=(0, None), out_axes=(0, None), axis_name=&quot;batch&quot;
+    )(x, state)
+
+    probs = jax.nn.softmax(logits[0])
+    top1  = int(jnp.argmax(probs))
+    print(f&quot;{model_name}: top-1 class {top1} ({float(probs[top1]):.4f})&quot;)
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../models/esm/" class="btn btn-neutral float-left" title="ESM"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../models/esm/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

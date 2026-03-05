@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Embedding - Noxton</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Embedding";
+        var mkdocs_page_input_path = "nn/embedding.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Noxton
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../getting-started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">NN Layers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../attention/">Attention</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../normalization/">Normalization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../convolution/">Convolution</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Embedding</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#embeddingwithpadding">EmbeddingWithPadding</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#constructor">Constructor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#__call__">__call__</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#embeddingbag">EmbeddingBag</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#constructor_1">Constructor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#__call___1">__call__</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example_1">Example</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../regularization/">Regularization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../linear/">Linear</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mamba/">State Space (Mamba)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../transformer/">Transformer</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Models</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/alexnet/">AlexNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/resnet/">ResNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/convnext/">ConvNeXt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/efficientnet/">EfficientNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/swin-transformer/">Swin Transformer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/clip/">CLIP</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/esm/">ESM</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../examples/">Examples</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Noxton</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">NN Layers</li>
+      <li class="breadcrumb-item active">Embedding</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="embedding">Embedding<a class="headerlink" href="#embedding" title="Permanent link">&para;</a></h1>
+<pre><code class="language-python">from noxton.nn import EmbeddingWithPadding, EmbeddingBag
+</code></pre>
+<hr />
+<h2 id="embeddingwithpadding">EmbeddingWithPadding<a class="headerlink" href="#embeddingwithpadding" title="Permanent link">&para;</a></h2>
+<p>Embedding table that zeros out embeddings for a configurable padding index. Wraps <code>eqx.nn.Embedding</code> and multiplies every looked-up embedding by a binary mask that is <code>0</code> wherever the input equals <code>padding_idx</code>.</p>
+<h3 id="constructor">Constructor<a class="headerlink" href="#constructor" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">EmbeddingWithPadding(
+    num_embeddings: int,
+    embedding_dim: int,
+    padding_idx: int = 0,
+    *,
+    key: PRNGKeyArray,
+    dtype = None,
+)
+</code></pre>
+<h3 id="__call__"><code>__call__</code><a class="headerlink" href="#__call__" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">emb(x: Array) -&gt; Array   # (seq_len,) -&gt; (seq_len, embedding_dim)
+</code></pre>
+<h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import jax
+import jax.numpy as jnp
+from noxton.nn import EmbeddingWithPadding
+
+key = jax.random.PRNGKey(0)
+emb = EmbeddingWithPadding(num_embeddings=10, embedding_dim=4, key=key)
+
+ids = jnp.array([0, 1, 2, 0])   # 0 is padding
+out = emb(ids)
+# out.shape -&gt; (4, 4)
+# out[0] and out[3] are zero vectors
+</code></pre>
+<hr />
+<h2 id="embeddingbag">EmbeddingBag<a class="headerlink" href="#embeddingbag" title="Permanent link">&para;</a></h2>
+<p>Sums a bag of token embeddings into a single vector. Looks up each index using <code>EmbeddingWithPadding</code> (padding tokens contribute zero), then reduces by summing. Analogous to <code>torch.nn.EmbeddingBag(mode="sum")</code>.</p>
+<h3 id="constructor_1">Constructor<a class="headerlink" href="#constructor_1" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">EmbeddingBag(
+    num_embeddings: int,
+    embedding_dim: int,
+    padding_idx: int = 0,
+    *,
+    key: PRNGKeyArray,
+    dtype = None,
+)
+</code></pre>
+<h3 id="__call___1"><code>__call__</code><a class="headerlink" href="#__call___1" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">bag(x: Array) -&gt; Array   # (bag_size,) -&gt; (embedding_dim,)
+</code></pre>
+<h3 id="example_1">Example<a class="headerlink" href="#example_1" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import jax
+import jax.numpy as jnp
+from noxton.nn import EmbeddingBag
+
+key = jax.random.PRNGKey(0)
+bag = EmbeddingBag(num_embeddings=10, embedding_dim=4, key=key)
+
+ids = jnp.array([1, 3, 5])
+out = bag(ids)
+# out.shape -&gt; (4,)
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../convolution/" class="btn btn-neutral float-left" title="Convolution"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../regularization/" class="btn btn-neutral float-right" title="Regularization">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../convolution/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../regularization/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

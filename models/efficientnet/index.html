@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>EfficientNet - Noxton</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "EfficientNet";
+        var mkdocs_page_input_path = "models/efficientnet.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Noxton
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../getting-started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">NN Layers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/attention/">Attention</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/normalization/">Normalization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/convolution/">Convolution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/embedding/">Embedding</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/regularization/">Regularization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/linear/">Linear</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/mamba/">State Space (Mamba)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/transformer/">Transformer</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Models</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../alexnet/">AlexNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../resnet/">ResNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../convnext/">ConvNeXt</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">EfficientNet</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#variants">Variants</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#efficientnet-v1">EfficientNet (V1)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#efficientnetv2">EfficientNetV2</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#from_pretrained">from_pretrained</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#available-weights-selection">Available weights (selection)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#__call__">__call__</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example">Example</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#input-preprocessing-imagenet">Input preprocessing (ImageNet)</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../swin-transformer/">Swin Transformer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../clip/">CLIP</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../esm/">ESM</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../examples/">Examples</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Noxton</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Models</li>
+      <li class="breadcrumb-item active">EfficientNet</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="efficientnet">EfficientNet<a class="headerlink" href="#efficientnet" title="Permanent link">&para;</a></h1>
+<pre><code class="language-python">from noxton.models import EfficientNet
+</code></pre>
+<p>EfficientNet (Tan &amp; Le, 2019) scales depth, width, and resolution in a compound fashion, achieving strong accuracy/efficiency trade-offs. EfficientNetV2 (Tan &amp; Le, 2021) additionally introduces Fused-MBConv blocks for faster training.</p>
+<hr />
+<h2 id="variants">Variants<a class="headerlink" href="#variants" title="Permanent link">&para;</a></h2>
+<h3 id="efficientnet-v1">EfficientNet (V1)<a class="headerlink" href="#efficientnet-v1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th><code>model</code></th>
+<th>Resolution</th>
+<th>Params</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>efficientnet_b0</code></td>
+<td>224</td>
+<td>5.3M</td>
+</tr>
+<tr>
+<td><code>efficientnet_b1</code></td>
+<td>240</td>
+<td>7.8M</td>
+</tr>
+<tr>
+<td><code>efficientnet_b2</code></td>
+<td>260</td>
+<td>9.2M</td>
+</tr>
+<tr>
+<td><code>efficientnet_b3</code></td>
+<td>300</td>
+<td>12.2M</td>
+</tr>
+<tr>
+<td><code>efficientnet_b4</code></td>
+<td>380</td>
+<td>19.3M</td>
+</tr>
+<tr>
+<td><code>efficientnet_b5</code></td>
+<td>456</td>
+<td>30.4M</td>
+</tr>
+<tr>
+<td><code>efficientnet_b6</code></td>
+<td>528</td>
+<td>43.0M</td>
+</tr>
+<tr>
+<td><code>efficientnet_b7</code></td>
+<td>600</td>
+<td>66.3M</td>
+</tr>
+</tbody>
+</table>
+<h3 id="efficientnetv2">EfficientNetV2<a class="headerlink" href="#efficientnetv2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th><code>model</code></th>
+<th>Resolution</th>
+<th>Params</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>efficientnet_v2_s</code></td>
+<td>384</td>
+<td>21.5M</td>
+</tr>
+<tr>
+<td><code>efficientnet_v2_m</code></td>
+<td>480</td>
+<td>54.1M</td>
+</tr>
+<tr>
+<td><code>efficientnet_v2_l</code></td>
+<td>480</td>
+<td>118.5M</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="from_pretrained"><code>from_pretrained</code><a class="headerlink" href="#from_pretrained" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">EfficientNet.from_pretrained(
+    model: str,
+    weights: str,
+    key: PRNGKeyArray = ...,
+    dtype = None,
+) -&gt; tuple[EfficientNet, eqx.nn.State]
+</code></pre>
+<h3 id="available-weights-selection">Available weights (selection)<a class="headerlink" href="#available-weights-selection" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th><code>weights</code></th>
+<th>Top-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>efficientnet_b0_IMAGENET1K_V1</code></td>
+<td>77.7%</td>
+</tr>
+<tr>
+<td><code>efficientnet_b1_IMAGENET1K_V2</code></td>
+<td>81.4%</td>
+</tr>
+<tr>
+<td><code>efficientnet_b2_IMAGENET1K_V1</code></td>
+<td>80.6%</td>
+</tr>
+<tr>
+<td><code>efficientnet_b3_IMAGENET1K_V1</code></td>
+<td>82.0%</td>
+</tr>
+<tr>
+<td><code>efficientnet_b4_IMAGENET1K_V1</code></td>
+<td>83.4%</td>
+</tr>
+<tr>
+<td><code>efficientnet_b5_IMAGENET1K_V1</code></td>
+<td>83.4%</td>
+</tr>
+<tr>
+<td><code>efficientnet_b6_IMAGENET1K_V1</code></td>
+<td>84.0%</td>
+</tr>
+<tr>
+<td><code>efficientnet_b7_IMAGENET1K_V1</code></td>
+<td>84.1%</td>
+</tr>
+<tr>
+<td><code>efficientnet_v2_s_IMAGENET1K_V1</code></td>
+<td>84.2%</td>
+</tr>
+<tr>
+<td><code>efficientnet_v2_m_IMAGENET1K_V1</code></td>
+<td>85.1%</td>
+</tr>
+<tr>
+<td><code>efficientnet_v2_l_IMAGENET1K_V1</code></td>
+<td>85.7%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="__call__"><code>__call__</code><a class="headerlink" href="#__call__" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">model(
+    x: Array,                # (3, H, W)
+    state: eqx.nn.State,
+    key: PRNGKeyArray | None = None,
+) -&gt; tuple[Array, eqx.nn.State]   # (1000,), state
+</code></pre>
+<hr />
+<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">import jax
+import jax.numpy as jnp
+import equinox as eqx
+from noxton.models import EfficientNet
+
+model, state = EfficientNet.from_pretrained(
+    &quot;efficientnet_b0&quot;,
+    weights=&quot;efficientnet_b0_IMAGENET1K_V1&quot;,
+    dtype=jnp.float16,
+)
+model, state = eqx.nn.inference_mode((model, state))
+
+images = jnp.zeros((4, 3, 224, 224), dtype=jnp.float16)
+
+logits, _ = eqx.filter_vmap(
+    model, in_axes=(0, None), out_axes=(0, None), axis_name=&quot;batch&quot;
+)(images, state)
+
+probs = jax.nn.softmax(logits, axis=-1)  # (4, 1000)
+</code></pre>
+<h3 id="input-preprocessing-imagenet">Input preprocessing (ImageNet)<a class="headerlink" href="#input-preprocessing-imagenet" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">from torchvision import transforms
+
+preprocess = transforms.Compose([
+    transforms.Resize(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225]),
+])
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../convnext/" class="btn btn-neutral float-left" title="ConvNeXt"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../swin-transformer/" class="btn btn-neutral float-right" title="Swin Transformer">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../convnext/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../swin-transformer/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

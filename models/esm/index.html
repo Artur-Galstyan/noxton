@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>ESM - Noxton</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "ESM";
+        var mkdocs_page_input_path = "models/esm.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Noxton
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../getting-started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">NN Layers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/attention/">Attention</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/normalization/">Normalization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/convolution/">Convolution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/embedding/">Embedding</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/regularization/">Regularization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/linear/">Linear</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/mamba/">State Space (Mamba)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/transformer/">Transformer</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Models</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../alexnet/">AlexNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../resnet/">ResNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../convnext/">ConvNeXt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../efficientnet/">EfficientNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../swin-transformer/">Swin Transformer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../clip/">CLIP</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">ESM</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#esmc">ESMC</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#from_pretrained">from_pretrained</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#__call__">__call__</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#vocabulary">Vocabulary</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#esm3">ESM3</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#from_pretrained_1">from_pretrained</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#__call___1">__call__</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example-sequence-only-forward-pass">Example: sequence-only forward pass</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../examples/">Examples</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Noxton</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Models</li>
+      <li class="breadcrumb-item active">ESM</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="esm-protein-language-models">ESM (Protein Language Models)<a class="headerlink" href="#esm-protein-language-models" title="Permanent link">&para;</a></h1>
+<pre><code class="language-python">from noxton.models import ESM3, ESMC
+</code></pre>
+<p>Noxton includes two protein language model architectures from EvolutionaryScale:</p>
+<ul>
+<li><strong>ESMC</strong> — a compact, efficient protein sequence model</li>
+<li><strong>ESM3</strong> — a multimodal model that jointly reasons over protein <em>sequence</em>, <em>structure</em>, <em>secondary structure (SS8)</em>, <em>solvent accessibility (SASA)</em>, and <em>function annotations</em></li>
+</ul>
+<p>Both models require the optional <code>huggingface-hub</code> dependency and will download weights from HuggingFace Hub on first use.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Install the <code>hub</code> extra for ESM support:
+<code>bash
+pip install "noxton[hub]"</code></p>
+</div>
+<hr />
+<h2 id="esmc">ESMC<a class="headerlink" href="#esmc" title="Permanent link">&para;</a></h2>
+<p>A Transformer-based protein sequence model. Given a tokenised amino-acid sequence it returns per-residue logits over the vocabulary.</p>
+<h3 id="from_pretrained"><code>from_pretrained</code><a class="headerlink" href="#from_pretrained" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">ESMC.from_pretrained(
+    model: Literal[&quot;esmc_300m&quot;, &quot;esmc_600m&quot;],
+    key: PRNGKeyArray | None = None,
+    dtype = None,
+) -&gt; ESMC
+</code></pre>
+<p>Weights are downloaded from HuggingFace Hub and cached locally.</p>
+<table>
+<thead>
+<tr>
+<th><code>model</code></th>
+<th>Parameters</th>
+<th>HuggingFace repo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>esmc_300m</code></td>
+<td>300M</td>
+<td><code>EvolutionaryScale/esmc-300m-2024-12</code></td>
+</tr>
+<tr>
+<td><code>esmc_600m</code></td>
+<td>600M</td>
+<td><code>EvolutionaryScale/esmc-600m-2024-12</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="__call__"><code>__call__</code><a class="headerlink" href="#__call__" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">esmc(
+    sequence_tokens: Array,            # (L,) int32
+    sequence_id: Array | None = None,  # (L,) bool attention mask (True = real token)
+) -&gt; tuple[Array, Array, Array]
+    # (sequence_logits, last_hidden_state, all_hidden_states)
+    # sequence_logits: (L, 64)
+    # last_hidden_state: (L, d_model)
+    # all_hidden_states: (n_layers, L, d_model)
+</code></pre>
+<h3 id="vocabulary">Vocabulary<a class="headerlink" href="#vocabulary" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">SEQUENCE_VOCAB = [&quot;&lt;cls&gt;&quot;, &quot;&lt;pad&gt;&quot;, &quot;&lt;eos&gt;&quot;, &quot;&lt;unk&gt;&quot;,
+                  &quot;L&quot;, &quot;A&quot;, &quot;G&quot;, &quot;V&quot;, &quot;S&quot;, &quot;E&quot;, &quot;R&quot;, &quot;T&quot;,
+                  &quot;I&quot;, &quot;D&quot;, &quot;P&quot;, &quot;K&quot;, &quot;Q&quot;, &quot;N&quot;, &quot;F&quot;, &quot;Y&quot;,
+                  &quot;M&quot;, &quot;H&quot;, &quot;W&quot;, &quot;C&quot;, &quot;X&quot;, &quot;B&quot;, &quot;U&quot;, &quot;Z&quot;,
+                  &quot;O&quot;, &quot;.&quot;, &quot;-&quot;, &quot;|&quot;, &quot;&lt;mask&gt;&quot;]
+</code></pre>
+<p>Special token indices: <code>BOS=0</code>, <code>PAD=1</code>, <code>EOS=2</code>, <code>MASK=32</code>.</p>
+<h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import jax
+import jax.numpy as jnp
+from noxton.models import ESMC
+
+model = ESMC.from_pretrained(&quot;esmc_300m&quot;, dtype=jnp.float16)
+
+# Encode a short protein sequence (BOS + residues + EOS)
+# Vocabulary indices: BOS=0, L=4, A=5, G=6, EOS=2
+tokens = jnp.array([0, 4, 5, 6, 4, 5, 2], dtype=jnp.int32)
+
+logits, embedding, hiddens = model(tokens)
+# logits.shape    -&gt; (7, 64)
+# embedding.shape -&gt; (7, 960)  [for esmc_300m]
+</code></pre>
+<hr />
+<h2 id="esm3">ESM3<a class="headerlink" href="#esm3" title="Permanent link">&para;</a></h2>
+<p>A multimodal protein language model that reasons jointly over sequence, structure, secondary structure, solvent accessibility, and function annotations (Hayes et al., 2024).</p>
+<h3 id="from_pretrained_1"><code>from_pretrained</code><a class="headerlink" href="#from_pretrained_1" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">ESM3.from_pretrained(
+    model: Literal[&quot;esm3_open&quot;] = &quot;esm3_open&quot;,
+    key: PRNGKeyArray | None = None,
+    dtype = None,
+) -&gt; ESM3
+</code></pre>
+<table>
+<thead>
+<tr>
+<th><code>model</code></th>
+<th>Parameters</th>
+<th>HuggingFace repo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>esm3_open</code></td>
+<td>1.4B</td>
+<td><code>EvolutionaryScale/esm3-sm-open-v1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="__call___1"><code>__call__</code><a class="headerlink" href="#__call___1" title="Permanent link">&para;</a></h3>
+<p>All inputs are optional. Any <code>None</code> input is replaced with an appropriate mask or padding token.</p>
+<pre><code class="language-python">esm3(
+    sequence_tokens: Array | None = None,              # (L,) int32
+    structure_tokens: Array | None = None,             # (L,) int32
+    ss8_tokens: Array | None = None,                   # (L,) int32
+    sasa_tokens: Array | None = None,                  # (L,) int32
+    function_tokens: Array | None = None,              # (L, 8) int32
+    residue_annotation_tokens: Array | None = None,    # (L, 16) int32
+    average_plddt: Array | None = None,                # scalar
+    per_res_plddt: Array | None = None,                # (L,)
+    structure_coords: Array | None = None,             # (L, 3, 3) N/CA/C coords
+    chain_id: Array | None = None,                     # (L,) int32
+    sequence_id: Array | None = None,                  # (L,) bool attention mask
+) -&gt; tuple[Array, Array, Array, Array, Array, Array, Array]
+    # (sequence_logits, structure_logits, secondary_structure_logits,
+    #  sasa_logits, function_logits, residue_logits, embedding)
+</code></pre>
+<h3 id="example-sequence-only-forward-pass">Example: sequence-only forward pass<a class="headerlink" href="#example-sequence-only-forward-pass" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import jax
+import jax.numpy as jnp
+from noxton.models import ESM3
+
+model = ESM3.from_pretrained(&quot;esm3_open&quot;)
+
+# Sequence tokens only — all other modalities are masked
+tokens = jnp.array([0, 4, 5, 6, 4, 5, 2], dtype=jnp.int32)
+
+outputs = model(sequence_tokens=tokens)
+seq_logits = outputs[0]
+# seq_logits.shape -&gt; (7, vocab_size)
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../clip/" class="btn btn-neutral float-left" title="CLIP"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../examples/" class="btn btn-neutral float-right" title="Examples">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../clip/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../examples/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

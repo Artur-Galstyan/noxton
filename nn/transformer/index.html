@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Transformer - Noxton</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Transformer";
+        var mkdocs_page_input_path = "nn/transformer.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Noxton
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../getting-started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">NN Layers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../attention/">Attention</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../normalization/">Normalization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../convolution/">Convolution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../embedding/">Embedding</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../regularization/">Regularization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../linear/">Linear</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../mamba/">State Space (Mamba)</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Transformer</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#transformerencoderlayer">TransformerEncoderLayer</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#constructor">Constructor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#__call__">__call__</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#transformerdecoderlayer">TransformerDecoderLayer</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#constructor_1">Constructor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#__call___1">__call__</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#transformerencoder">TransformerEncoder</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#constructor_2">Constructor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#__call___2">__call__</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#transformerdecoder">TransformerDecoder</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#constructor_3">Constructor</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#transformer_1">Transformer</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#constructor_4">Constructor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#__call___3">__call__</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#visiontransformer">VisionTransformer</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#constructor_5">Constructor</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#__call___4">__call__</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example">Example</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Models</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/alexnet/">AlexNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/resnet/">ResNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/convnext/">ConvNeXt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/efficientnet/">EfficientNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/swin-transformer/">Swin Transformer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/clip/">CLIP</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../models/esm/">ESM</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../examples/">Examples</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Noxton</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">NN Layers</li>
+      <li class="breadcrumb-item active">Transformer</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="transformer">Transformer<a class="headerlink" href="#transformer" title="Permanent link">&para;</a></h1>
+<pre><code class="language-python">from noxton.nn import (
+    TransformerEncoderLayer,
+    TransformerDecoderLayer,
+    TransformerEncoder,
+    TransformerDecoder,
+    Transformer,
+    VisionTransformer,
+)
+</code></pre>
+<hr />
+<h2 id="transformerencoderlayer">TransformerEncoderLayer<a class="headerlink" href="#transformerencoderlayer" title="Permanent link">&para;</a></h2>
+<p>Single encoder layer: multi-head self-attention + feed-forward MLP, each followed by layer normalisation and a residual connection.</p>
+<h3 id="constructor">Constructor<a class="headerlink" href="#constructor" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">TransformerEncoderLayer(
+    d_model: int,
+    nhead: int,
+    dim_feedforward: int = 2048,
+    dropout: float = 0.1,
+    activation = jax.nn.relu,
+    layer_norm_eps: float = 1e-5,
+    norm_first: bool = False,
+    bias: bool = True,
+    inference: bool = False,
+    *,
+    key: PRNGKeyArray,
+    dtype = None,
+)
+</code></pre>
+<h3 id="__call__"><code>__call__</code><a class="headerlink" href="#__call__" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">layer(
+    src: Array,                 # (seq_len, d_model)
+    src_mask = None,
+    src_key_padding_mask = None,
+    is_causal: bool = False,
+    key = None,
+) -&gt; Array                      # (seq_len, d_model)
+</code></pre>
+<hr />
+<h2 id="transformerdecoderlayer">TransformerDecoderLayer<a class="headerlink" href="#transformerdecoderlayer" title="Permanent link">&para;</a></h2>
+<p>Single decoder layer: self-attention + cross-attention + MLP, each with layer norm and residual.</p>
+<h3 id="constructor_1">Constructor<a class="headerlink" href="#constructor_1" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">TransformerDecoderLayer(
+    d_model: int,
+    nhead: int,
+    dim_feedforward: int = 2048,
+    dropout: float = 0.1,
+    activation = jax.nn.relu,
+    layer_norm_eps: float = 1e-5,
+    norm_first: bool = False,
+    bias: bool = True,
+    inference: bool = False,
+    *,
+    key: PRNGKeyArray,
+    dtype = None,
+)
+</code></pre>
+<h3 id="__call___1"><code>__call__</code><a class="headerlink" href="#__call___1" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">layer(
+    tgt: Array,                 # (tgt_len, d_model)
+    memory: Array,              # (src_len, d_model)
+    tgt_mask = None,
+    memory_mask = None,
+    tgt_key_padding_mask = None,
+    memory_key_padding_mask = None,
+    tgt_is_causal: bool = False,
+    memory_is_causal: bool = False,
+    key = None,
+) -&gt; Array                      # (tgt_len, d_model)
+</code></pre>
+<hr />
+<h2 id="transformerencoder">TransformerEncoder<a class="headerlink" href="#transformerencoder" title="Permanent link">&para;</a></h2>
+<p>Stack of <code>TransformerEncoderLayer</code>s with optional final <code>LayerNorm</code>.</p>
+<h3 id="constructor_2">Constructor<a class="headerlink" href="#constructor_2" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">TransformerEncoder(
+    encoder_layer: TransformerEncoderLayer,
+    num_layers: int,
+    norm = None,
+)
+</code></pre>
+<h3 id="__call___2"><code>__call__</code><a class="headerlink" href="#__call___2" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">encoder(
+    src: Array,
+    mask = None,
+    src_key_padding_mask = None,
+    is_causal: bool = False,
+    key = None,
+) -&gt; Array
+</code></pre>
+<hr />
+<h2 id="transformerdecoder">TransformerDecoder<a class="headerlink" href="#transformerdecoder" title="Permanent link">&para;</a></h2>
+<p>Stack of <code>TransformerDecoderLayer</code>s with optional final <code>LayerNorm</code>.</p>
+<h3 id="constructor_3">Constructor<a class="headerlink" href="#constructor_3" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">TransformerDecoder(
+    decoder_layer: TransformerDecoderLayer,
+    num_layers: int,
+    norm = None,
+)
+</code></pre>
+<hr />
+<h2 id="transformer_1">Transformer<a class="headerlink" href="#transformer_1" title="Permanent link">&para;</a></h2>
+<p>Full encoder-decoder architecture.</p>
+<h3 id="constructor_4">Constructor<a class="headerlink" href="#constructor_4" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">Transformer(
+    d_model: int = 512,
+    nhead: int = 8,
+    num_encoder_layers: int = 6,
+    num_decoder_layers: int = 6,
+    dim_feedforward: int = 2048,
+    dropout: float = 0.1,
+    activation = jax.nn.relu,
+    layer_norm_eps: float = 1e-5,
+    norm_first: bool = False,
+    bias: bool = True,
+    inference: bool = False,
+    *,
+    key: PRNGKeyArray,
+    dtype = None,
+)
+</code></pre>
+<h3 id="__call___3"><code>__call__</code><a class="headerlink" href="#__call___3" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">transformer(
+    src: Array,                 # (src_len, d_model)
+    tgt: Array,                 # (tgt_len, d_model)
+    src_mask = None,
+    tgt_mask = None,
+    memory_mask = None,
+    src_key_padding_mask = None,
+    tgt_key_padding_mask = None,
+    memory_key_padding_mask = None,
+    src_is_causal: bool = False,
+    tgt_is_causal: bool = False,
+    memory_is_causal: bool = False,
+    key = None,
+) -&gt; Array                      # (tgt_len, d_model)
+</code></pre>
+<hr />
+<h2 id="visiontransformer">VisionTransformer<a class="headerlink" href="#visiontransformer" title="Permanent link">&para;</a></h2>
+<p>Vision Transformer (ViT) with patch embedding and CLS token. Divides the input image into patches, linearly embeds each patch, prepends a learnable <code>[CLS]</code> token, adds positional embeddings, and passes the sequence through a stack of <code>ResidualAttentionBlock</code>s.</p>
+<h3 id="constructor_5">Constructor<a class="headerlink" href="#constructor_5" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">VisionTransformer(
+    image_size: int,
+    patch_size: int,
+    width: int,
+    layers: int,
+    heads: int,
+    output_dim: int,
+    *,
+    key: PRNGKeyArray,
+    dtype = None,
+)
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>image_size</code></td>
+<td>Input image resolution (square).</td>
+</tr>
+<tr>
+<td><code>patch_size</code></td>
+<td>Size of each patch (square).</td>
+</tr>
+<tr>
+<td><code>width</code></td>
+<td>Transformer hidden dimension.</td>
+</tr>
+<tr>
+<td><code>layers</code></td>
+<td>Number of transformer blocks.</td>
+</tr>
+<tr>
+<td><code>heads</code></td>
+<td>Number of attention heads.</td>
+</tr>
+<tr>
+<td><code>output_dim</code></td>
+<td>Dimension of the projected output (CLS token after projection).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="__call___4"><code>__call__</code><a class="headerlink" href="#__call___4" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">vit(x: Array) -&gt; Array   # (C, H, W) -&gt; (output_dim,)
+</code></pre>
+<h3 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h3>
+<pre><code class="language-python">import jax
+import jax.numpy as jnp
+from noxton.nn import VisionTransformer
+
+key = jax.random.PRNGKey(0)
+vit = VisionTransformer(
+    image_size=224,
+    patch_size=16,
+    width=768,
+    layers=12,
+    heads=12,
+    output_dim=512,
+    key=key,
+)
+
+image = jax.random.normal(key, (3, 224, 224))
+features = vit(image)
+# features.shape -&gt; (512,)
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../mamba/" class="btn btn-neutral float-left" title="State Space (Mamba)"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../models/alexnet/" class="btn btn-neutral float-right" title="AlexNet">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../mamba/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../models/alexnet/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
