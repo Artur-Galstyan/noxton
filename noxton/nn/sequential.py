@@ -261,7 +261,7 @@ class GatedFeedForward(eqx.Module):
         x: Float[Array, "seq_len embed_dim"],
         *,
         key: PRNGKeyArray | None = None,
-    ) -> Array:
+    ) -> Float[Array, "seq_len embed_dim"]:
         x = eqx.filter_vmap(self.proj_up)(x)
         gate_preact, up_proj = jnp.split(x, [self.proj_up_dim], axis=-1)
         x = self.act_fn(gate_preact) * up_proj

@@ -25,6 +25,15 @@ ffn = GatedFeedForward(
     proj_up_dim=32,
     key=k2,
 )
+
+print(f"{seq_len=}, {embed_dim=}")
+ffn_output = ffn(
+    jax.random.normal(shape=(seq_len, embed_dim), key=jax.random.key(42)), key=k2
+)
+
+print(f"FFN output: {ffn_output.shape=}")
+
+
 block = xLSTMBlock(
     embedding_dim=embed_dim,
     xlstm_layer=mlstm_layer,

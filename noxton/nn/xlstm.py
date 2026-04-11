@@ -16,7 +16,21 @@ from noxton.utils import default_floating_dtype
 def slstm_pointwise(
     raw: Float[Array, "hidden_dim_x4"],
     states: Float[Array, "4 hidden_dim"],
-) -> tuple[Array, Array]:
+) -> tuple[Float[Array, "4 hidden_dim"], Float[Array, "4 hidden_dim"]]:
+    """Computes the sLSTM pointwise gates and updates the cell states.
+
+    This function implements the core pointwise operations of the scalar LSTM (sLSTM) cell.
+    It takes the raw input projections and previous states to compute the input, forget,
+    and output gates, as well as the new cell state (c), normalizer state (n), and memory
+    state (m).
+
+    Args:
+        raw: The raw input projections of shape (hidden_dim * 4,).
+        states: A tuple containing the previous states (y, c, n, m).
+
+    Returns:
+        A tuple containing the new states (y, c, n, m) and the computed gates.
+    """
     y, c, n, m = states
 
     iraw, fraw, zraw, oraw = jnp.split(raw, 4)
@@ -47,7 +61,22 @@ def slstm_recurrent_step(
     states: Float[Array, "4 hidden_dim"],
     R: Float[Array, "num_heads gates_x_head_dim head_dim"],
     b: Float[Array, "gates_x_hidden"],
-) -> tuple[Array, Array]:
+) -> tuple[Float[Array, "4 hidden_dim"], Float[Array, "4 hidden_dim"]]:
+    """Executes a single recurrent step of the sLSTM cell.
+
+    This function computes the linear recurrent step for the sLSTM cell given the inputs
+    at the current timestep, the recurrent weights, biases, and previous states. It applies
+    the recurrent projection and then delegates to `slstm_pointwise` to update the cell states.
+
+    Args:
+        Wx_t: The input projection for the current timestep.
+        states: The previous states of the cell.
+        R: The recurrent kernel weights.
+        b: The recurrent biases.
+
+    Returns:
+        A tuple containing the updated cell states and the output of the cell at this timestep.
+    """
     num_heads = R.shape[0]
     head_dim = R.shape[2]
     num_gates_r = R.shape[1] // head_dim
@@ -66,7 +95,24 @@ def slstm_forward_scan(
     states: Float[Array, "4 hidden_dim"],
     R: Float[Array, "num_heads gates_x_head_dim head_dim"],
     b: Float[Array, "gates_x_hidden"],
-) -> tuple[Array, Array]:
+) -> tuple[Float[Array, "seq_len hidden_dim"], Float[Array, "4 hidden_dim"]]:
+    """Applies the sLSTM recurrent step across an entire sequence.
+
+    This function utilizes `jax.lax.scan` to efficiently apply the `slstm_recurrent_step`
+    across a sequence of inputs. This is the preferred method for processing full sequences
+    during training or batch evaluation.
+
+    Args:
+        Wx_seq: The sequence of input projections over time.
+        states: The initial states of the cell.
+        R: The recurrent kernel weights.
+        b: The recurrent biases.
+
+    Returns:
+        A tuple containing the sequence of outputs and the final cell states after processing
+        the entire sequence.
+    """
+
     def scan_fn(states, Wx_t):
         new_states, gates = slstm_recurrent_step(Wx_t, states, R, b)
         return new_states, new_states[0]
@@ -85,7 +131,28 @@ def parallel_stabilized_simple(
     stabilize_rowwise: bool = True,
     eps: float = 1e-6,
     **kwargs,
-) -> Array:
+) -> Float[Array, "num_heads seq_len head_dim"]:
+    """Computes the parallel stabilized matrix LSTM (mLSTM) mixing operation.
+
+    This function performs the parallel mixing of queries, keys, and values using the
+    stabilized formulation of the mLSTM cell. It avoids sequential recurrence by computing
+    the mixing via associative prefix sums or cumulative operations on the gates, heavily
+    relying on parallel hardware for efficient execution.
+
+    Args:
+        queries: The projected query vectors.
+        keys: The projected key vectors.
+        values: The projected value vectors.
+        igate_preact: Pre-activations for the input gate.
+        fgate_preact: Pre-activations for the forget gate.
+        lower_triangular_matrix: Optional causal mask matrix.
+        stabilize_rowwise: Whether to apply row-wise stabilization to avoid overflow.
+        eps: Small constant for numerical stability.
+        **kwargs: Additional keyword arguments.
+
+    Returns:
+        The output sequence after applying the parallel mLSTM mixing.
+    """
     NH, S, DH = queries.shape
 
     log_fgates = jax.nn.log_sigmoid(fgate_preact)
@@ -129,17 +196,46 @@ def parallel_stabilized_simple(
 
 
 def recurrent_step_stabilized_simple(
-    c_state: Array,
-    n_state: Array,
-    m_state: Array,
+    c_state: Float[Array, "num_heads head_dim head_dim"],
+    n_state: Float[Array, "num_heads head_dim 1"],
+    m_state: Float[Array, "num_heads 1 1"],
     q: Float[Array, "num_heads 1 head_dim"],
     k: Float[Array, "num_heads 1 head_dim"],
     v: Float[Array, "num_heads 1 head_dim"],
-    igate_preact: Array,
-    fgate_preact: Array,
+    igate_preact: Float[Array, "num_heads 1 1"],
+    fgate_preact: Float[Array, "num_heads 1 1"],
     eps: float = 1e-6,
     **kwargs,
-) -> tuple[Array, tuple[Array, Array, Array]]:
+) -> tuple[
+    Float[Array, "num_heads 1 head_dim"],
+    tuple[
+        Float[Array, "num_heads head_dim head_dim"],
+        Float[Array, "num_heads head_dim 1"],
+        Float[Array, "num_heads 1 1"],
+    ],
+]:
+    """Executes a single stabilized recurrent step for the matrix LSTM (mLSTM).
+
+    This function computes a single timestep update for the mLSTM cell using the
+    recurrent formulation. It updates the covariance matrix state (c_state), normalizer
+    state (n_state), and maximum state (m_state) to compute the cell's output. This is
+    typically used during autoregressive inference where parallel processing is not possible.
+
+    Args:
+        c_state: The covariance matrix state.
+        n_state: The normalizer state.
+        m_state: The maximum state used for stabilization.
+        q: The projected query vector for the current timestep.
+        k: The projected key vector for the current timestep.
+        v: The projected value vector for the current timestep.
+        igate_preact: Pre-activation for the input gate.
+        fgate_preact: Pre-activation for the forget gate.
+        eps: Small constant for numerical stability.
+        **kwargs: Additional keyword arguments.
+
+    Returns:
+        A tuple containing the output at this timestep and the updated tuple of states.
+    """
     NH, S, DH = q.shape
 
     q = q.reshape(NH, DH, 1)
@@ -170,6 +266,14 @@ def recurrent_step_stabilized_simple(
 
 
 class mLSTMCell(eqx.Module):
+    """A Matrix Long Short-Term Memory (mLSTM) cell module.
+
+    The mLSTM cell represents the memory mechanism using a covariance matrix rather than
+    a scalar cell state. It allows for highly parallelizable training and large memory
+    capacity. This module manages the internal gates, layer normalizations, and can operate
+    both over full sequences in parallel and step-by-step for inference.
+    """
+
     max_seq_len: int
     embedding_dim: int
     num_heads: int
@@ -220,7 +324,21 @@ class mLSTMCell(eqx.Module):
         q: Float[Array, "seq_len embed_dim"],
         k: Float[Array, "seq_len embed_dim"],
         v: Float[Array, "seq_len embed_dim"],
-    ):
+    ) -> Float[Array, "seq_len embed_dim"]:
+        """Processes a full sequence of queries, keys, and values in parallel.
+
+        This method invokes the parallel stabilized formulation of the mLSTM to
+        efficiently process entire sequences at once, bypassing the sequential bottleneck
+        of standard recurrent neural networks.
+
+        Args:
+            q: The input sequence of queries.
+            k: The input sequence of keys.
+            v: The input sequence of values.
+
+        Returns:
+            The sequence of cell outputs after mixing and applying layer normalization.
+        """
         seq_len, _ = q.shape
         if_gate_input = jnp.concatenate((q, k, v), axis=1)
         head_dim = self.embedding_dim // self.num_heads
@@ -250,8 +368,34 @@ class mLSTMCell(eqx.Module):
         q: Float[Array, "1 embed_dim"],
         k: Float[Array, "1 embed_dim"],
         v: Float[Array, "1 embed_dim"],
-        cell_state: tuple[Array, Array, Array] | None = None,
-    ) -> tuple[Array, tuple[Array, Array, Array]]:
+        cell_state: tuple[
+            Float[Array, "num_heads head_dim head_dim"],
+            Float[Array, "num_heads head_dim 1"],
+            Float[Array, "num_heads 1 1"],
+        ]
+        | None = None,
+    ) -> tuple[
+        Float[Array, "1 embed_dim"],
+        tuple[
+            Float[Array, "num_heads head_dim head_dim"],
+            Float[Array, "num_heads head_dim 1"],
+            Float[Array, "num_heads 1 1"],
+        ],
+    ]:
+        """Processes a single timestep for the cell.
+
+        This method updates the cell state and computes the output for a single input timestep.
+        It is mainly utilized during autoregressive generation where inputs are provided one by one.
+
+        Args:
+            q: The query vector for a single timestep.
+            k: The key vector for a single timestep.
+            v: The value vector for a single timestep.
+            cell_state: The previous states of the cell. If None, initializes new empty states.
+
+        Returns:
+            A tuple containing the cell output for this timestep and the updated cell states.
+        """
         S, _ = q.shape
         assert S == 1
 
@@ -285,7 +429,19 @@ class mLSTMCell(eqx.Module):
         h_state_norm = eqx.filter_vmap(self.outnorm)(h_state)
         return h_state_norm, cell_state
 
-    def init_state(self) -> tuple[Array, Array, Array]:
+    def init_state(
+        self,
+    ) -> tuple[
+        Float[Array, "num_heads head_dim head_dim"],
+        Float[Array, "num_heads head_dim 1"],
+        Float[Array, "num_heads 1 1"],
+    ]:
+        """Initializes and returns the empty states for the module.
+
+        Returns:
+            A tuple of tensors initialized to zero, representing the initial covariance matrix,
+            normalizer state, and maximum state.
+        """
         head_dim = self.embedding_dim // self.num_heads
         return (
             jnp.zeros((self.num_heads, head_dim, head_dim)),
@@ -295,6 +451,15 @@ class mLSTMCell(eqx.Module):
 
 
 class mLSTMLayer(eqx.Module):
+    """A complete mLSTM layer block.
+
+    This module encapsulates a full mLSTM block, which includes an initial up-projection
+    into an inner embedding dimension, a 1D causal convolution for local mixing,
+    the core `mLSTMCell` for sequence mixing, an output gate branch, and a final
+    down-projection back to the original embedding dimension. It behaves as a complete
+    sub-layer within a larger transformer-like architecture.
+    """
+
     proj_up: eqx.nn.Linear
     q_proj: LinearHeadwiseExpand
     k_proj: LinearHeadwiseExpand
@@ -395,7 +560,21 @@ class mLSTMLayer(eqx.Module):
 
         self.inner_embedding_dim = inner_embedding_dim
 
-    def __call__(self, x: Float[Array, "seq_len embed_dim"], key: PRNGKeyArray | None):
+    def __call__(
+        self, x: Float[Array, "seq_len embed_dim"], key: PRNGKeyArray | None
+    ) -> Float[Array, "seq_len embed_dim"]:
+        """Performs a forward pass of the layer over an entire input sequence.
+
+        This method processes the input sequence through the up-projection, causal
+        convolution, parallel mLSTM cell, and down-projection.
+
+        Args:
+            x: The input sequence of embeddings.
+            key: PRNG key for dropout operations.
+
+        Returns:
+            The output sequence after passing through the full layer.
+        """
         S, _ = x.shape
 
         # up-projection
@@ -425,11 +604,41 @@ class mLSTMLayer(eqx.Module):
     def step(
         self,
         x: Float[Array, "1 embed_dim"],
-        cell_state: tuple[Array, Array, Array] | None = None,
-        conv_state: tuple[Array] | None = None,
+        cell_state: tuple[
+            Float[Array, "num_heads head_dim head_dim"],
+            Float[Array, "num_heads head_dim 1"],
+            Float[Array, "num_heads 1 1"],
+        ]
+        | None = None,
+        conv_state: tuple[Array, ...] | None = None,
         *,
         key: PRNGKeyArray | None = None,
-    ) -> tuple[Array, tuple[tuple[Array, Array, Array], tuple[Array]]]:
+    ) -> tuple[
+        Float[Array, "1 embed_dim"],
+        tuple[
+            tuple[
+                Float[Array, "num_heads head_dim head_dim"],
+                Float[Array, "num_heads head_dim 1"],
+                Float[Array, "num_heads 1 1"],
+            ],
+            tuple[Array, ...],
+        ],
+    ]:
+        """Performs a single step forward pass.
+
+        Executes a single step update of the layer, including the stateful 1D convolution
+        and the stateful mLSTM cell. This is primarily used for autoregressive decoding.
+
+        Args:
+            x: The input embedding for a single timestep.
+            cell_state: The previous states of the mLSTM cell.
+            conv_state: The previous states of the 1D causal convolution.
+            key: PRNG key for dropout.
+
+        Returns:
+            A tuple containing the output embedding for this timestep and the updated tuples
+            of cell and convolution states.
+        """
         if cell_state is None:
             cell_state = self.mlstm_cell.init_state()
         if conv_state is None:
@@ -457,11 +666,32 @@ class mLSTMLayer(eqx.Module):
 
         return y, (cell_state, conv_state)
 
-    def init_state(self) -> tuple[tuple, tuple]:
+    def init_state(
+        self,
+    ) -> tuple[
+        tuple[
+            Float[Array, "num_heads head_dim head_dim"],
+            Float[Array, "num_heads head_dim 1"],
+            Float[Array, "num_heads 1 1"],
+        ],
+        tuple[Array, ...],
+    ]:
+        """Initializes and returns the empty states for the layer.
+
+        Returns:
+            A tuple containing the initial states for both the internal `mLSTMCell` and the `CausalConv1d`.
+        """
         return (self.mlstm_cell.init_state(), self.conv1d.init_state())
 
 
 class sLSTMCell(eqx.Module):
+    """A Scalar Long Short-Term Memory (sLSTM) cell module.
+
+    The sLSTM cell acts as a more traditional LSTM cell but with stabilized exponential
+    gating and normalization. It relies on sequential processing and maintains a scalar
+    memory state per hidden dimension, updated via standard recurrence.
+    """
+
     hidden_size: int
     num_heads: int
     num_gates: int
@@ -503,8 +733,20 @@ class sLSTMCell(eqx.Module):
     def __call__(
         self,
         x: Float[Array, "seq_len gates_x_hidden"],
-        state: Array | None = None,
-    ) -> tuple[Array, Array]:
+        state: Float[Array, "4 hidden_dim"] | None = None,
+    ) -> tuple[Float[Array, "seq_len hidden_dim"], Float[Array, "4 hidden_dim"]]:
+        """Processes an entire sequence of inputs through the cell.
+
+        This method utilizes `jax.lax.scan` internally to efficiently compute the
+        recurrent updates across the entire sequence.
+
+        Args:
+            x: The sequence of projected inputs.
+            state: The initial states of the cell. If None, initializes empty states.
+
+        Returns:
+            A tuple containing the sequence of outputs and the final cell states.
+        """
         if state is None:
             state = jnp.zeros((4, self.hidden_size))
 
@@ -517,8 +759,19 @@ class sLSTMCell(eqx.Module):
     def step(
         self,
         x: Float[Array, "gates_x_hidden"],
-        cell_state: Array | None = None,
-    ) -> tuple[Array, Array]:
+        cell_state: Float[Array, "4 hidden_dim"] | None = None,
+    ) -> tuple[Float[Array, "hidden_dim"], Float[Array, "4 hidden_dim"]]:
+        """Processes a single timestep for the cell.
+
+        Updates the internal scalar memory state for a single timestep input.
+
+        Args:
+            x: The projected inputs for the current timestep.
+            cell_state: The previous states of the cell. If None, initializes empty states.
+
+        Returns:
+            A tuple containing the output at this timestep and the updated states.
+        """
         if cell_state is None:
             cell_state = self.init_state()
 
@@ -528,11 +781,23 @@ class sLSTMCell(eqx.Module):
         new_state, gates = slstm_recurrent_step(x, cell_state, R, b)
         return new_state[0], new_state
 
-    def init_state(self) -> Array:
+    def init_state(self) -> Float[Array, "4 hidden_dim"]:
+        """Initializes and returns the empty states for the cell.
+
+        Returns:
+            A tensor of initialized zero states for the sLSTM cell.
+        """
         return jnp.zeros((4, self.hidden_size))
 
 
 class sLSTMLayer(eqx.Module):
+    """A complete sLSTM layer implementation.
+
+    This layer wraps the `sLSTMCell` with optional 1D causal convolution and computes
+    the necessary projections for the input, forget, output, and update gates. It serves
+    as a complete sub-layer component for sequential data modeling.
+    """
+
     conv1d: CausalConv1d | None
     fgate: LinearHeadwiseExpand
     igate: LinearHeadwiseExpand
@@ -622,7 +887,17 @@ class sLSTMLayer(eqx.Module):
         x: Float[Array, "seq_len embed_dim"],
         *,
         key: PRNGKeyArray | None = None,
-    ) -> Array:
+    ) -> Float[Array, "seq_len embed_dim"]:
+        """Performs a forward pass of the layer over an entire input sequence.
+
+        Args:
+            x: The input sequence of embeddings.
+            key: PRNG key for dropout operations.
+
+        Returns:
+            The output sequence after being processed by the optional convolution, gates,
+            sLSTM cell, dropout, and normalization.
+        """
         if self.conv1d is not None:
             x_conv = self.conv1d(x)
             assert isinstance(x_conv, Array)
@@ -646,11 +921,28 @@ class sLSTMLayer(eqx.Module):
     def step(
         self,
         x: Float[Array, "1 embed_dim"],
-        cell_state: Array | None = None,
-        conv_state: tuple = (),
+        cell_state: Float[Array, "4 hidden_dim"] | None = None,
+        conv_state: tuple[Array, ...] = (),
         *,
         key: PRNGKeyArray | None = None,
-    ) -> tuple[Array, tuple[Array, tuple]]:
+    ) -> tuple[
+        Float[Array, "1 embed_dim"],
+        tuple[Float[Array, "4 hidden_dim"], tuple[Array, ...]],
+    ]:
+        """Performs a single step forward pass.
+
+        Executes a step of the optional 1D convolution and the sLSTM cell, updating
+        and returning their respective states.
+
+        Args:
+            x: The input embedding for a single timestep.
+            cell_state: The previous states of the sLSTM cell.
+            conv_state: The previous states of the 1D causal convolution.
+            key: PRNG key for dropout.
+
+        Returns:
+            A tuple containing the output embedding and the updated tuples of cell and convolution states.
+        """
         if cell_state is None:
             cell_state = self.slstm_cell.init_state()
 
@@ -676,12 +968,25 @@ class sLSTMLayer(eqx.Module):
 
         return y, (cell_state, conv_state)
 
-    def init_state(self) -> tuple[Array, tuple]:
+    def init_state(self) -> tuple[Float[Array, "4 hidden_dim"], tuple[Array, ...]]:
+        """Initializes and returns the empty states for the layer.
+
+        Returns:
+            A tuple containing the initial states for both the internal `sLSTMCell` and the optional `CausalConv1d`.
+        """
         conv_st = self.conv1d.init_state() if self.conv1d is not None else ()
         return (self.slstm_cell.init_state(), conv_st)
 
 
 class xLSTMBlock(eqx.Module):
+    """An extended LSTM (xLSTM) residual block.
+
+    This module encapsulates an entire xLSTM block, consisting of a core xLSTM layer
+    (either an `mLSTMLayer` or an `sLSTMLayer`) followed by an optional feed-forward network (FFN).
+    It applies pre-layer normalization and residual connections around both the xLSTM
+    layer and the FFN, forming a complete building block for deep xLSTM architectures.
+    """
+
     xlstm_norm: ResidualLayerNorm
     xlstm: mLSTMLayer | sLSTMLayer
     ffn_norm: ResidualLayerNorm | None
@@ -712,8 +1017,16 @@ class xLSTMBlock(eqx.Module):
         x: Float[Array, "seq_len embed_dim"],
         *,
         key: PRNGKeyArray | None = None,
-    ) -> Array:
-        print("JIT")
+    ) -> Float[Array, "seq_len embed_dim"]:
+        """Performs a forward pass of the block over an entire input sequence.
+
+        Args:
+            x: The input sequence of embeddings.
+            key: PRNG key for dropout operations within the layer and FFN.
+
+        Returns:
+            The output sequence after passing through the residual block.
+        """
         key1, key2 = (None, None) if key is None else jax.random.split(key)
         x = x + self.xlstm(eqx.filter_vmap(self.xlstm_norm)(x), key=key1)
         if self.ffn is not None:
@@ -723,10 +1036,23 @@ class xLSTMBlock(eqx.Module):
     def step(
         self,
         x: Float[Array, "1 embed_dim"],
-        xlstm_state: tuple | None = None,
+        xlstm_state: tuple[Any, tuple[Array, ...]] | None = None,
         *,
         key: PRNGKeyArray | None = None,
-    ) -> tuple[Array, tuple]:
+    ) -> tuple[Float[Array, "1 embed_dim"], tuple[Any, tuple[Array, ...]]]:
+        """Performs a single step forward pass.
+
+        Executes a single stateful step through the xLSTM layer and applies the FFN.
+        Maintains and updates the underlying states of the recurrent components.
+
+        Args:
+            x: The input embedding for a single timestep.
+            xlstm_state: The previous states of the underlying xLSTM layer.
+            key: PRNG key for dropout.
+
+        Returns:
+            A tuple containing the output embedding and the updated states of the xLSTM layer.
+        """
         if xlstm_state is None:
             xlstm_state = self.init_state()
 
@@ -744,5 +1070,12 @@ class xLSTMBlock(eqx.Module):
             x = x + self.ffn(eqx.filter_vmap(self.ffn_norm)(x), key=key2)
         return x, xlstm_state
 
-    def init_state(self):
+    def init_state(self) -> tuple[Any, tuple[Array, ...]]:
+        """Initializes and returns the underlying states for the block.
+
+        Delegates the state initialization to the underlying xLSTM layer.
+
+        Returns:
+            The initial states for the components within the block.
+        """
         return self.xlstm.init_state()
