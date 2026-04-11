@@ -251,7 +251,7 @@ class CausalConv1d(eqx.Module):
 
     def __call__(
         self,
-        x: Array,
+        x: Float[Array, "seq_len embed_dim"],
         conv_state: Array | None = None,
         return_last_state: bool = False,
     ) -> Array | tuple[Array, Array]:
@@ -295,9 +295,9 @@ class CausalConv1d(eqx.Module):
 
     def step(
         self,
-        x: Array,
-        conv_state: tuple[Array] | None = None,
-    ) -> tuple[Array, tuple[Array]]:
+        x: Float[Array, "1 embed_dim"],
+        conv_state: tuple[Array, ...] | None = None,
+    ) -> tuple[Float[Array, "1 embed_dim"], tuple[Array, ...]]:
         """Apply causal convolution to a single timestep (autoregressive mode).
 
         Maintains a sliding-window buffer of the last ``kernel_size``
