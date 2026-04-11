@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Overview - Noxton</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Overview";
+        var mkdocs_page_input_path = "nn.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Noxton
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../getting-started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">NN Layers</span></p>
+              <ul class="current">
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Overview</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#module-list">Module list</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#importing">Importing</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#abstract-base-classes">Abstract base classes</a>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="attention/">Attention</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="normalization/">Normalization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="convolution/">Convolution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="embedding/">Embedding</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="regularization/">Regularization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="linear/">Linear</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="mamba/">State Space (Mamba)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="transformer/">Transformer</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Models</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../models/alexnet/">AlexNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../models/resnet/">ResNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../models/convnext/">ConvNeXt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../models/efficientnet/">EfficientNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../models/swin-transformer/">Swin Transformer</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../models/clip/">CLIP</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../models/esm/">ESM</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../examples/">Examples</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Noxton</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">NN Layers</li>
+      <li class="breadcrumb-item active">Overview</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="nn-layers-overview">NN Layers — Overview<a class="headerlink" href="#nn-layers-overview" title="Permanent link">&para;</a></h1>
+<p><code>noxton.nn</code> provides JAX/Equinox implementations of common neural network building blocks. All classes are <code>eqx.Module</code> subclasses and accept <code>key: PRNGKeyArray</code> and <code>dtype</code> constructor arguments.</p>
+<h2 id="module-list">Module list<a class="headerlink" href="#module-list" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Class(es)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="attention/">Attention</a></td>
+<td><code>MultiheadAttention</code>, <code>SqueezeExcitation</code></td>
+<td>Multi-head scaled dot-product attention; SE channel recalibration</td>
+</tr>
+<tr>
+<td><a href="normalization/">Normalization</a></td>
+<td><code>BatchNorm</code>, <code>LayerNorm</code>, <code>LocalResponseNormalization</code></td>
+<td>Batch, layer, and LRN normalization</td>
+</tr>
+<tr>
+<td><a href="convolution/">Convolution</a></td>
+<td><code>ConvNormActivation</code></td>
+<td>Conv → Norm → Activation block</td>
+</tr>
+<tr>
+<td><a href="embedding/">Embedding</a></td>
+<td><code>EmbeddingWithPadding</code>, <code>EmbeddingBag</code></td>
+<td>Embedding tables with padding support</td>
+</tr>
+<tr>
+<td><a href="regularization/">Regularization</a></td>
+<td><code>StochasticDepth</code></td>
+<td>DropPath / stochastic depth</td>
+</tr>
+<tr>
+<td><a href="linear/">Linear</a></td>
+<td><code>BatchedLinear</code></td>
+<td>Linear layer with arbitrary batch dimensions</td>
+</tr>
+<tr>
+<td><a href="mamba/">State Space (Mamba)</a></td>
+<td><code>SelectiveStateSpaceModel</code>, <code>MambaBlock</code>, <code>ResidualBlock</code>, <code>Mamba</code></td>
+<td>Mamba sequence model components</td>
+</tr>
+<tr>
+<td><a href="transformer/">Transformer</a></td>
+<td><code>TransformerEncoderLayer</code>, <code>TransformerDecoderLayer</code>, <code>TransformerEncoder</code>, <code>TransformerDecoder</code>, <code>Transformer</code>, <code>VisionTransformer</code></td>
+<td>Transformer encoder/decoder stack; ViT</td>
+</tr>
+</tbody>
+</table>
+<h2 id="importing">Importing<a class="headerlink" href="#importing" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">from noxton.nn import (
+    MultiheadAttention,
+    SqueezeExcitation,
+    ConvNormActivation,
+    BatchNorm,
+    LayerNorm,
+    LocalResponseNormalization,
+    EmbeddingWithPadding,
+    EmbeddingBag,
+    StochasticDepth,
+    BatchedLinear,
+    SelectiveStateSpace,
+    SelectiveStateSpaceModel,
+    MambaBlock,
+    Mamba,
+    TransformerEncoder,
+    TransformerDecoder,
+    Transformer,
+    VisionTransformer,
+)
+</code></pre>
+<h2 id="abstract-base-classes">Abstract base classes<a class="headerlink" href="#abstract-base-classes" title="Permanent link">&para;</a></h2>
+<p>Two abstract base classes define the interface for normalization layers used internally by <code>ConvNormActivation</code>:</p>
+<ul>
+<li><strong><code>AbstractNorm</code></strong> — stateless normalisation (e.g. <code>LayerNorm</code>). <code>__call__(x) -&gt; x</code>.</li>
+<li><strong><code>AbstractNormStateful</code></strong> — stateful normalisation (e.g. <code>BatchNorm</code>). <code>__call__(x, state) -&gt; (x, state)</code>.</li>
+</ul>
+<p>Custom norm layers can extend either base class to be compatible with <code>ConvNormActivation</code>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../getting-started/" class="btn btn-neutral float-left" title="Getting Started"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="attention/" class="btn btn-neutral float-right" title="Attention">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../getting-started/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="attention/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

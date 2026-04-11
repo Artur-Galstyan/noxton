@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Swin Transformer - Noxton</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Swin Transformer";
+        var mkdocs_page_input_path = "models/swin-transformer.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Noxton
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../getting-started/">Getting Started</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">NN Layers</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/attention/">Attention</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/normalization/">Normalization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/convolution/">Convolution</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/embedding/">Embedding</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/regularization/">Regularization</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/linear/">Linear</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/mamba/">State Space (Mamba)</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../nn/transformer/">Transformer</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Models</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../alexnet/">AlexNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../resnet/">ResNet</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../convnext/">ConvNeXt</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../efficientnet/">EfficientNet</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Swin Transformer</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#variants">Variants</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#swin-v1">Swin V1</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#swin-v2">Swin V2</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#from_pretrained">from_pretrained</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#available-weights">Available weights</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#__call__">__call__</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#example">Example</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#input-preprocessing">Input preprocessing</a>
+    </li>
+        </ul>
+    </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../clip/">CLIP</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../esm/">ESM</a>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../examples/">Examples</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Noxton</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Models</li>
+      <li class="breadcrumb-item active">Swin Transformer</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="swin-transformer">Swin Transformer<a class="headerlink" href="#swin-transformer" title="Permanent link">&para;</a></h1>
+<pre><code class="language-python">from noxton.models import SwinTransformer
+</code></pre>
+<p>Swin Transformer (Liu et al., 2021) introduces a hierarchical vision backbone using <em>shifted window</em> attention. Windows partition the feature map so attention is computed locally, then shifted between layers to allow cross-window connections. SwinV2 (Liu et al., 2022) adds continuous relative position bias and other stabilisation improvements.</p>
+<hr />
+<h2 id="variants">Variants<a class="headerlink" href="#variants" title="Permanent link">&para;</a></h2>
+<h3 id="swin-v1">Swin V1<a class="headerlink" href="#swin-v1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th><code>model</code></th>
+<th>Params</th>
+<th>Input size</th>
+<th>Top-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>swin_t</code></td>
+<td>28.3M</td>
+<td>224</td>
+<td>81.5%</td>
+</tr>
+<tr>
+<td><code>swin_s</code></td>
+<td>49.6M</td>
+<td>224</td>
+<td>83.2%</td>
+</tr>
+<tr>
+<td><code>swin_b</code></td>
+<td>87.8M</td>
+<td>224</td>
+<td>83.5%</td>
+</tr>
+</tbody>
+</table>
+<h3 id="swin-v2">Swin V2<a class="headerlink" href="#swin-v2" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th><code>model</code></th>
+<th>Params</th>
+<th>Input size</th>
+<th>Top-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>swin_v2_t</code></td>
+<td>28.4M</td>
+<td>256</td>
+<td>82.0%</td>
+</tr>
+<tr>
+<td><code>swin_v2_s</code></td>
+<td>49.7M</td>
+<td>256</td>
+<td>83.7%</td>
+</tr>
+<tr>
+<td><code>swin_v2_b</code></td>
+<td>87.9M</td>
+<td>256</td>
+<td>84.6%</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>V1 and V2 models use different input resolutions. Use <code>232/224</code> crop for V1 and <code>260/256</code> for V2. See <a href="#input-preprocessing">preprocessing</a> below.</p>
+</div>
+<hr />
+<h2 id="from_pretrained"><code>from_pretrained</code><a class="headerlink" href="#from_pretrained" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">SwinTransformer.from_pretrained(
+    model: str,
+    weights: str,
+    key: PRNGKeyArray,
+    dtype = None,
+) -&gt; tuple[SwinTransformer, eqx.nn.State]
+</code></pre>
+<h3 id="available-weights">Available weights<a class="headerlink" href="#available-weights" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th><code>weights</code></th>
+<th>Top-1</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>swin_t_IMAGENET1K_V1</code></td>
+<td>81.5%</td>
+</tr>
+<tr>
+<td><code>swin_s_IMAGENET1K_V1</code></td>
+<td>83.2%</td>
+</tr>
+<tr>
+<td><code>swin_b_IMAGENET1K_V1</code></td>
+<td>83.5%</td>
+</tr>
+<tr>
+<td><code>swin_v2_t_IMAGENET1K_V1</code></td>
+<td>82.0%</td>
+</tr>
+<tr>
+<td><code>swin_v2_s_IMAGENET1K_V1</code></td>
+<td>83.7%</td>
+</tr>
+<tr>
+<td><code>swin_v2_b_IMAGENET1K_V1</code></td>
+<td>84.6%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="__call__"><code>__call__</code><a class="headerlink" href="#__call__" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">model(
+    x: Array,                # (3, H, W)
+    state: eqx.nn.State,
+    key: PRNGKeyArray | None = None,
+) -&gt; tuple[Array, eqx.nn.State]   # (1000,), state
+</code></pre>
+<hr />
+<h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
+<pre><code class="language-python">import jax
+import jax.numpy as jnp
+import equinox as eqx
+from noxton.models import SwinTransformer
+
+# V1 — input 224
+model_v1, state_v1 = SwinTransformer.from_pretrained(
+    model=&quot;swin_t&quot;,
+    weights=&quot;swin_t_IMAGENET1K_V1&quot;,
+    key=jax.random.key(0),
+    dtype=jnp.float32,
+)
+model_v1, state_v1 = eqx.nn.inference_mode((model_v1, state_v1))
+
+images_v1 = jnp.zeros((2, 3, 224, 224))
+logits_v1, _ = eqx.filter_vmap(
+    model_v1, in_axes=(0, None), out_axes=(0, None), axis_name=&quot;batch&quot;
+)(images_v1, state_v1)
+
+# V2 — input 256
+model_v2, state_v2 = SwinTransformer.from_pretrained(
+    model=&quot;swin_v2_t&quot;,
+    weights=&quot;swin_v2_t_IMAGENET1K_V1&quot;,
+    key=jax.random.key(0),
+    dtype=jnp.float32,
+)
+model_v2, state_v2 = eqx.nn.inference_mode((model_v2, state_v2))
+
+images_v2 = jnp.zeros((2, 3, 256, 256))
+logits_v2, _ = eqx.filter_vmap(
+    model_v2, in_axes=(0, None), out_axes=(0, None), axis_name=&quot;batch&quot;
+)(images_v2, state_v2)
+</code></pre>
+<h3 id="input-preprocessing">Input preprocessing<a class="headerlink" href="#input-preprocessing" title="Permanent link">&para;</a></h3>
+<p><strong>Swin V1 (224px)</strong></p>
+<pre><code class="language-python">from torchvision import transforms
+
+preprocess = transforms.Compose([
+    transforms.Resize(232),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225]),
+])
+</code></pre>
+<p><strong>Swin V2 (256px)</strong></p>
+<pre><code class="language-python">from torchvision import transforms
+
+preprocess = transforms.Compose([
+    transforms.Resize(260),
+    transforms.CenterCrop(256),
+    transforms.ToTensor(),
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                         std=[0.229, 0.224, 0.225]),
+])
+</code></pre>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../efficientnet/" class="btn btn-neutral float-left" title="EfficientNet"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../clip/" class="btn btn-neutral float-right" title="CLIP">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../efficientnet/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../clip/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
