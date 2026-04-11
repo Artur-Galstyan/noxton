@@ -296,7 +296,9 @@ class mLSTMCell(eqx.Module):
         self.max_seq_len = max_seq_len
         key, ikey, fkey = jax.random.split(key, 3)
 
-        igate = eqx.nn.Linear(3 * embedding_dim, num_heads, key=ikey, dtype=dtype)
+        igate: eqx.nn.Linear = eqx.nn.Linear(
+            3 * embedding_dim, num_heads, key=ikey, dtype=dtype
+        )
         igate = eqx.tree_at(
             lambda l: l.weight, igate, jnp.zeros_like(igate.weight, dtype=dtype)
         )
@@ -306,7 +308,9 @@ class mLSTMCell(eqx.Module):
             jnp.linspace(start=3.0, stop=6.0, num=len(igate.bias), dtype=dtype),
         )
 
-        fgate = eqx.nn.Linear(3 * embedding_dim, num_heads, key=fkey, dtype=dtype)
+        fgate: eqx.nn.Linear = eqx.nn.Linear(
+            3 * embedding_dim, num_heads, key=fkey, dtype=dtype
+        )
         fgate = eqx.tree_at(
             lambda l: l.weight, fgate, jnp.zeros_like(fgate.weight, dtype=dtype)
         )
